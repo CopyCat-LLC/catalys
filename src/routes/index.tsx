@@ -17,6 +17,8 @@ function App() {
 	return (
 		<div>
 			<Header />
+			<div className="min-h-screen flex items-center justify-center">asd</div>
+			<div>asd</div>
 		</div>
 	);
 }

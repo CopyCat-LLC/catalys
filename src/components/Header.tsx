@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import UserDropdown from "./UserDropdown";
 import { Button } from "./ui/button";
 import Logo from "./ui/Logo";
@@ -21,6 +23,8 @@ const MenuItems = [
 ];
 
 const Header = () => {
+	const [scrolled, setScrolled] = useState(false);
+
 	const { data: session } = useQuery({
 		queryKey: ["session"],
 		queryFn: async () => {
@@ -34,8 +38,26 @@ const Header = () => {
 		window.location.href = "/";
 	};
 
+	useEffect(() => {
+		const handleScroll = () => {
+			const isScrolled = window.scrollY > 0;
+			setScrolled(isScrolled);
+		};
+
+		window.addEventListener("scroll", handleScroll);
+
+		return () => {
+			window.removeEventListener("scroll", handleScroll);
+		};
+	}, []);
+
 	return (
-		<div className="h-14 rounded-full fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl mx-auto flex justify-between items-center px-4 bg-card/80 backdrop-blur-sm z-50">
+		<div
+			className={cn(
+				"h-14 rounded-full fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl mx-auto flex justify-between items-center px-4 bg-card/80 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out",
+				scrolled && "my-2 border border-white-200 backdrop-blur-sm bg-white/70",
+			)}
+		>
 			<div className="flex items-center w-1/6">
 				<Link to="/">
 					<Logo />
