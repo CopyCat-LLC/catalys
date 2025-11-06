@@ -3,6 +3,14 @@ import Header from "../components/Header";
 
 export const Route = createFileRoute("/")({
 	component: App,
+	head: () => ({
+		meta: [
+			{
+				name: "description",
+				content: "Get the most out of your startup",
+			},
+		],
+	}),
 });
 
 function App() {
