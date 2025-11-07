@@ -3,9 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import UserDropdown from "./UserDropdown";
-import { Button } from "./ui/button";
-import Logo from "./ui/Logo";
+import UserDropdown from "@/components/landing/UserDropdown";
+import { Button } from "@/components/ui/button";
+import Logo from "@/components/ui/Logo";
 
 const MenuItems = [
 	{
@@ -54,7 +54,7 @@ const Header = () => {
 	return (
 		<div
 			className={cn(
-				"h-14 rounded-full fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl mx-auto flex justify-between items-center px-4 bg-card/80 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out",
+				"h-16 rounded-full fixed top-4 left-1/2 -translate-x-1/2 bg-transparent w-full max-w-7xl mx-auto flex justify-between items-center px-4 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out",
 				scrolled && "my-2 backdrop-blur-sm bg-white/70 shadow",
 			)}
 		>
@@ -81,12 +81,12 @@ const Header = () => {
 					<>
 						<Link to="/sign-in">
 							<Button variant="secondary" className="h-12 px-6">
-								Sign in
+								Login
 							</Button>
 						</Link>
 						<Link to="/sign-up">
 							<Button variant="default" className="h-12 px-6">
-								Sign up
+								Launch your raise
 							</Button>
 						</Link>
 					</>

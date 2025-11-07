@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Header from "../components/Header";
+import Header from "@/components/landing/Header";
+import Hero from "@/components/landing/Hero";
 
 export const Route = createFileRoute("/")({
 	component: App,
@@ -15,10 +16,9 @@ export const Route = createFileRoute("/")({
 
 function App() {
 	return (
-		<div>
+		<div className='flex flex-col'>
 			<Header />
-			<div className="min-h-screen flex items-center justify-center">asd</div>
-			<div>asd</div>
+			<Hero/>
 		</div>
 	);
 }
