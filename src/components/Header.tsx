@@ -55,7 +55,7 @@ const Header = () => {
 		<div
 			className={cn(
 				"h-14 rounded-full fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl mx-auto flex justify-between items-center px-4 bg-card/80 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out",
-				scrolled && "my-2 border border-white-200 backdrop-blur-sm bg-white/70",
+				scrolled && "my-2 backdrop-blur-sm bg-white/70 shadow",
 			)}
 		>
 			<div className="flex items-center w-1/6">
