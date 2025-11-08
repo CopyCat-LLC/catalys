@@ -19,9 +19,9 @@ const Hero = () => {
 					<div className="space-y-8">
 						{/* Badge */}
 						{/* <div className="inline-flex items-center gap-2 rounded-full bg-purple-50 dark:bg-purple-900/30 px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 ring-1 ring-inset ring-purple-700/10 dark:ring-purple-500/20">
-              <TrendingUp className="h-4 w-4" />
-              <span>Backed by leading VCs</span>
-            </div> */}
+							<TrendingUp className="h-4 w-4" />
+							<span>Backed by leading VCs</span>
+						</div> */}
 
 						{/* Headline */}
 						<h1 className="text-5xl font-semibold tracking-tight text-gray-800 dark:text-white sm:text-6xl lg:text-7xl">
@@ -66,7 +66,7 @@ const Hero = () => {
 					<div className="lg:pl-8">
 						<div className="relative">
 							{/* Background card - slightly offset to bottom right */}
-							<div className="absolute top-12 left-12 w-full blur-[2px] opacity-40">
+							<div className="absolute top-12 left-12 w-full blur-[2px] opacity-60">
 								<StartupCard animate={false} />
 							</div>
 							{/* Main card */}
