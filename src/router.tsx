@@ -34,7 +34,14 @@ export const getRouter = () => {
 			routeTree,
 			defaultPreload: "intent",
 			scrollRestoration: true,
-			context: { queryClient, convexClient: convex, convexQueryClient },
+			context: { 
+				queryClient, 
+				convexClient: convex, 
+				convexQueryClient,
+				// userId and token will be added by the root route's beforeLoad
+				userId: undefined,
+				token: undefined,
+			},
 			Wrap: ({ children }) => (
 				<ConvexProvider client={convexQueryClient.convexClient}>
 					{children}

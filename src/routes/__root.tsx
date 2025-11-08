@@ -26,6 +26,8 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 	convexClient: ConvexReactClient;
 	convexQueryClient: ConvexQueryClient;
+	userId?: string;
+	token?: string;
 }
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
