@@ -80,7 +80,7 @@ const Hero = () => {
           <div className="lg:pl-8">
             <div className="relative">
               {/* Background card - slightly offset to bottom right */}
-              <div className="absolute top-14 left-14 w-full blur-[2px] opacity-40">
+              <div className="absolute top-12 left-12 w-full blur-[2px] opacity-40">
                 <StartupCard animate={false} />
               </div>
               {/* Main card */}
