@@ -1,24 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
 import UserDropdown from "@/components/landing/UserDropdown";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 const MenuItems = [
 	{
 		label: "For founders",
-		href: "#",
+		href: "#founders",
 	},
 	{
 		label: "For investors",
-		href: "#",
+		href: "#investors",
 	},
 	{
 		label: "About",
-		href: "#",
+		href: "#about",
 	},
 ];
 
@@ -36,6 +36,20 @@ const Header = () => {
 	const handleSignOut = async () => {
 		await authClient.signOut();
 		window.location.href = "/";
+	};
+
+	const handleSmoothScroll = (
+		e: React.MouseEvent<HTMLAnchorElement>,
+		href: string,
+	) => {
+		if (href.startsWith("#")) {
+			e.preventDefault();
+			const targetId = href.substring(1);
+			const element = document.getElementById(targetId);
+			if (element) {
+				element.scrollIntoView({ behavior: "smooth", block: "start" });
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -63,13 +77,14 @@ const Header = () => {
 			</div>
 			<div className="flex items-center gap-12 w-4/6 justify-center">
 				{MenuItems.map((item) => (
-					<Link
-						to={item.href}
-						className="text-sm font-medium hover:text-primary transition-colors"
+					<a
+						href={item.href}
+						onClick={(e) => handleSmoothScroll(e, item.href)}
+						className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
 						key={item.label}
 					>
 						{item.label}
-					</Link>
+					</a>
 				))}
 			</div>
 			<div className="flex items-center gap-4 w-1/6 justify-end">
@@ -83,7 +98,10 @@ const Header = () => {
 							</Button>
 						</Link>
 						<Link to="/sign-up">
-							<Button variant="default" className="bg-indigo-600 font-medium h-11 px-6">
+							<Button
+								variant="default"
+								className="bg-indigo-600 font-medium h-11 px-6"
+							>
 								Get Started
 							</Button>
 						</Link>
