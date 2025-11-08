@@ -50,7 +50,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Catalys | Get the most out of your startup",
+				title: "Catalys | Get funded on your terms",
 			},
 		],
 		links: [
