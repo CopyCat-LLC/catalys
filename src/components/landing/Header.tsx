@@ -74,17 +74,25 @@ const Header = () => {
 			<div className="flex items-center w-1/6 pl-2">
 				<Logo />
 			</div>
-			<div className="flex items-center gap-12 w-4/6 justify-center">
-				{MenuItems.map((item) => (
-					<a
-						href={item.href}
-						onClick={(e) => handleSmoothScroll(e, item.href)}
-						className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
-						key={item.label}
-					>
-						{item.label}
-					</a>
-				))}
+			<div className="flex items-center w-4/6 justify-center">
+				<div
+					className={cn(
+						"flex items-center justify-center gap-16 h-12 px-8 transition-all duration-300 ease-in-out",
+						scrolled &&
+							"bg-black/20 backdrop-blur ring ring-white/10 rounded-full",
+					)}
+				>
+					{MenuItems.map((item) => (
+						<a
+							href={item.href}
+							onClick={(e) => handleSmoothScroll(e, item.href)}
+							className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
+							key={item.label}
+						>
+							{item.label}
+						</a>
+					))}
+				</div>
 			</div>
 			<div className="flex items-center gap-4 w-1/6 justify-end">
 				{session?.user ? (
@@ -93,7 +101,7 @@ const Header = () => {
 					<>
 						<Link to="/sign-in">
 							<Button
-								variant="outline"
+								variant="ghost"
 								className="font-medium h-9 px-5 cursor-pointer"
 							>
 								Sign in

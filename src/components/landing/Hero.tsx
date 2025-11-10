@@ -6,9 +6,11 @@ const Hero = () => {
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center gap-16 -mt-32">
 			<h2 className="text-7xl font-bold">Get funded on your terms</h2>
-			<p className="text-lg text-muted-foreground w-1/2 text-center font-semibold">
+			<p className="text-lg text-muted-foreground text-center font-semibold">
 				Set your equity, choose your valuation, and let investors bid to back
-				your vision. Raise capital without giving up control.
+				your vision.
+				<br />
+				Raise capital without giving up control.
 			</p>
 			<div className="flex gap-4 items-center z-10">
 				<Button variant="default" className="h-10 gap-2">
