@@ -16,6 +16,15 @@ const config = defineConfig({
     viteReact(),
     netlify(),
   ],
+  // Fix for Windows EPERM errors when Vite updates dependencies
+  optimizeDeps: {
+    force: false,
+  },
+  server: {
+    watch: {
+      usePolling: false,
+    },
+  },
 })
 
 export default config

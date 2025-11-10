@@ -24,10 +24,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
-			"a11y": {
-				"useValidId": "off"
-			}
+			"recommended": true
 		}
 	},
 	"javascript": {

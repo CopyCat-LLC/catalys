@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import About from "@/components/landing/About";
-import Founders from "@/components/landing/Founders";
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
-import Investors from "@/components/landing/Investors";
+import { Trusted } from "@/components/landing/Trusted";
+import Wrapper from "@/components/ui/Wrapper";
 
 export const Route = createFileRoute("/")({
 	component: App,
@@ -21,10 +20,10 @@ function App() {
 	return (
 		<div className="flex flex-col">
 			<Header />
-			<Hero />
-			<Founders />
-			<Investors />
-			<About />
+			<Wrapper>
+				<Hero />
+				<Trusted />
+			</Wrapper>
 		</div>
 	);
 }
