@@ -4,7 +4,16 @@ import {
 	Outlet,
 	redirect,
 } from "@tanstack/react-router";
-import { BarChart3, Home, Settings, Users } from "lucide-react";
+import {
+	AudioWaveform,
+	BarChart3,
+	Command,
+	GalleryVerticalEnd,
+	Home,
+	Settings,
+	Users,
+} from "lucide-react";
+import { Workspace } from "@/components/dashboard/Workspace";
 import {
 	Sidebar,
 	SidebarContent,
@@ -20,6 +29,31 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+
+const data = {
+	user: {
+		name: "shadcn",
+		email: "m@example.com",
+		avatar: "/avatars/shadcn.jpg",
+	},
+	teams: [
+		{
+			name: "Acme Inc",
+			logo: GalleryVerticalEnd,
+			plan: "Enterprise",
+		},
+		{
+			name: "Acme Corp.",
+			logo: AudioWaveform,
+			plan: "Startup",
+		},
+		{
+			name: "Evil Corp.",
+			logo: Command,
+			plan: "Free",
+		},
+	],
+};
 
 export const Route = createFileRoute("/dashboard")({
 	beforeLoad: ({ context, location }) => {
@@ -42,10 +76,10 @@ function DashboardLayout() {
 	return (
 		<SidebarProvider>
 			<Sidebar>
-				<SidebarHeader>
-					<div className="px-2 py-4 text-lg font-semibold">Dashboard</div>
+				<SidebarHeader className="px-4 pt-4">
+					<Workspace teams={data.teams} />
 				</SidebarHeader>
-				<SidebarContent>
+				<SidebarContent className="px-2">
 					<SidebarGroup>
 						<SidebarGroupLabel>Navigation</SidebarGroupLabel>
 						<SidebarGroupContent>
