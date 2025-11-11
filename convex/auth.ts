@@ -5,6 +5,11 @@ import { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins/organization";
+import { emailOTP } from "better-auth/plugins";
+import { requireActionCtx } from "@convex-dev/better-auth/utils";
+import { sendEmailVerification, sendOTPVerification } from "./lib/resend/email";
+import generateVerifyEmail from "./lib/resend/emails/verifyEmail";
+
 
 const siteUrl = process.env.SITE_URL!;
 
@@ -33,16 +38,30 @@ export const createAuth = (
       // The Convex plugin is required for Convex compatibility
       convex(),
       organization(),
-    ],
-    user: {
-      additionalFields: {
-        userType: {
-          type: 'string',
-          required: true,
-          defaultValue: 'FOUNDER'
+      emailOTP({
+        async sendVerificationOTP({ email, otp, type }) {
+        if (type == "sign-in") {
+          // Sign in
+            await sendOTPVerification(requireActionCtx(ctx), {
+            to: email,
+            code: otp,
+          });
+        } else if (type == "email-verification") {
+          // Email verification
+            await sendOTPVerification(requireActionCtx(ctx), {
+            to: email,
+            code: otp,
+          });
+        } else {
+          // Password reset
+            await sendOTPVerification(requireActionCtx(ctx), {
+            to: email,
+            code: otp,
+          })
         }
-      }
-    }
+        },
+      })
+    ],
   });
 };
 

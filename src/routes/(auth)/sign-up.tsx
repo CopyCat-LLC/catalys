@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -23,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
 import { authClient } from "@/lib/auth-client";
+import { api } from "../../../convex/_generated/api";
 
 export const Route = createFileRoute("/(auth)/sign-up")({
 	component: SignUpPage,
@@ -58,6 +60,7 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 function SignUpPage() {
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
+	const createUserProfile = useMutation(api.userProfiles.create);
 
 	const form = useForm<SignUpFormValues>({
 		resolver: zodResolver(signUpSchema),
@@ -81,9 +84,24 @@ function SignUpPage() {
 
 			if (result.error) {
 				setError(result.error.message || "Failed to create account");
-			} else {
-				// Successfully signed up, redirect to home
-				navigate({ to: "/" });
+			} else if (result.data?.user) {
+				// Create user profile with default FOUNDER type
+				await createUserProfile({
+					userId: result.data.user.id,
+					userType: "FOUNDER",
+				});
+
+				// Send verification OTP
+				await authClient.emailOtp.sendVerificationOtp({
+					email: data.email,
+					type: "email-verification",
+				});
+
+				// Redirect to email verification page
+				navigate({
+					to: "/verify-email",
+					search: { email: data.email },
+				});
 			}
 		} catch (err) {
 			setError("An unexpected error occurred");

@@ -11,4 +11,8 @@ export default defineSchema({
     text: v.string(),
     completed: v.boolean(),
   }),
+  userProfiles: defineTable({
+    userId: v.string(), // Better Auth user ID
+    userType: v.union(v.literal('FOUNDER'), v.literal('INVESTOR')),
+  }).index('by_userId', ['userId']),
 })
