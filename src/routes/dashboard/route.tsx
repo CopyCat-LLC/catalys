@@ -5,10 +5,7 @@ import {
 	redirect,
 } from "@tanstack/react-router";
 import {
-	AudioWaveform,
 	BarChart3,
-	Command,
-	GalleryVerticalEnd,
 	Home,
 	Settings,
 	Users,
@@ -29,31 +26,6 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
-	},
-	teams: [
-		{
-			name: "Acme Inc",
-			logo: GalleryVerticalEnd,
-			plan: "Enterprise",
-		},
-		{
-			name: "Acme Corp.",
-			logo: AudioWaveform,
-			plan: "Startup",
-		},
-		{
-			name: "Evil Corp.",
-			logo: Command,
-			plan: "Free",
-		},
-	],
-};
 
 export const Route = createFileRoute("/dashboard")({
 	beforeLoad: ({ context, location }) => {
@@ -77,7 +49,7 @@ function DashboardLayout() {
 		<SidebarProvider>
 			<Sidebar>
 				<SidebarHeader className="px-4 pt-4">
-					<Workspace teams={data.teams} />
+					<Workspace />
 				</SidebarHeader>
 				<SidebarContent className="px-2">
 					<SidebarGroup>

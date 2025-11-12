@@ -69,9 +69,9 @@ function VerifyEmailPage() {
 			if (result.error) {
 				setError(result.error.message || "Invalid verification code");
 			} else {
-				setSuccess("Email verified successfully! Redirecting...");
+				setSuccess("Email verified successfully! Redirecting to onboarding...");
 				setTimeout(() => {
-					navigate({ to: "/dashboard" });
+					navigate({ to: "/onboarding" });
 				}, 2000);
 			}
 		} catch (err) {

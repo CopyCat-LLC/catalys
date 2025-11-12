@@ -15,6 +15,7 @@ import type * as lib_resend_emails_resetPassword from "../lib/resend/emails/rese
 import type * as lib_resend_emails_verifyEmail from "../lib/resend/emails/verifyEmail.js";
 import type * as lib_resend_emails_verifyOTP from "../lib/resend/emails/verifyOTP.js";
 import type * as lib_resend_sendEmail from "../lib/resend/sendEmail.js";
+import type * as startups from "../startups.js";
 import type * as userProfiles from "../userProfiles.js";
 import type * as users from "../users.js";
 
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   "lib/resend/emails/verifyEmail": typeof lib_resend_emails_verifyEmail;
   "lib/resend/emails/verifyOTP": typeof lib_resend_emails_verifyOTP;
   "lib/resend/sendEmail": typeof lib_resend_sendEmail;
+  startups: typeof startups;
   userProfiles: typeof userProfiles;
   users: typeof users;
 }>;
