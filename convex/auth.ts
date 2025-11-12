@@ -7,15 +7,21 @@ import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins/organization";
 import { emailOTP } from "better-auth/plugins";
 import { requireActionCtx } from "@convex-dev/better-auth/utils";
-import { sendEmailVerification, sendOTPVerification } from "./lib/resend/email";
-import generateVerifyEmail from "./lib/resend/emails/verifyEmail";
-
+import { sendOTPVerification } from "./lib/resend/email";
+import authSchema from "./betterAuth/schema"; 
 
 const siteUrl = process.env.SITE_URL!;
 
 // The component client has methods needed for integrating Convex with Better Auth,
 // as well as helper methods for general use.
-export const authComponent = createClient<DataModel>(components.betterAuth);
+export const authComponent = createClient<DataModel, typeof authSchema>( 
+  components.betterAuth,
+  {
+    local: {
+      schema: authSchema,
+    },
+  }
+);
 
 export const createAuth = (
   ctx: GenericCtx<DataModel>,
@@ -37,7 +43,9 @@ export const createAuth = (
     plugins: [
       // The Convex plugin is required for Convex compatibility
       convex(),
-      organization(),
+      organization({
+        allowUserToCreateOrganization: true,
+      }),
       emailOTP({
         async sendVerificationOTP({ email, otp, type }) {
         if (type == "sign-in") {
