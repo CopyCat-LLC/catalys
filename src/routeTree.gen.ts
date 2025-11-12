@@ -9,13 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as LaunchStartupRouteImport } from './routes/launch-startup'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoConvexRouteImport } from './routes/demo/convex'
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard/overview'
+import { Route as DashboardLaunchStartupRouteImport } from './routes/dashboard/launch-startup'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
@@ -30,9 +31,9 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+const LaunchStartupRoute = LaunchStartupRouteImport.update({
+  id: '/launch-startup',
+  path: '/launch-startup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -63,6 +64,11 @@ const DemoConvexRoute = DemoConvexRouteImport.update({
 const DashboardOverviewRoute = DashboardOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardLaunchStartupRoute = DashboardLaunchStartupRouteImport.update({
+  id: '/launch-startup',
+  path: '/launch-startup',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
@@ -134,11 +140,12 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/onboarding': typeof OnboardingRoute
+  '/launch-startup': typeof LaunchStartupRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/dashboard/launch-startup': typeof DashboardLaunchStartupRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -155,11 +162,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/onboarding': typeof OnboardingRoute
+  '/launch-startup': typeof LaunchStartupRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/dashboard/launch-startup': typeof DashboardLaunchStartupRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -178,11 +186,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/onboarding': typeof OnboardingRoute
+  '/launch-startup': typeof LaunchStartupRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
   '/(auth)/sign-up': typeof authSignUpRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/dashboard/launch-startup': typeof DashboardLaunchStartupRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/demo/convex': typeof DemoConvexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -202,11 +211,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/onboarding'
+    | '/launch-startup'
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/dashboard/launch-startup'
     | '/dashboard/overview'
     | '/demo/convex'
     | '/demo/tanstack-query'
@@ -223,11 +233,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/onboarding'
+    | '/launch-startup'
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
     | '/verify-email'
+    | '/dashboard/launch-startup'
     | '/dashboard/overview'
     | '/demo/convex'
     | '/demo/tanstack-query'
@@ -245,11 +256,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/onboarding'
+    | '/launch-startup'
     | '/(auth)/forgot-password'
     | '/(auth)/sign-in'
     | '/(auth)/sign-up'
     | '/(auth)/verify-email'
+    | '/dashboard/launch-startup'
     | '/dashboard/overview'
     | '/demo/convex'
     | '/demo/tanstack-query'
@@ -268,7 +280,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  OnboardingRoute: typeof OnboardingRoute
+  LaunchStartupRoute: typeof LaunchStartupRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authSignInRoute: typeof authSignInRoute
   authSignUpRoute: typeof authSignUpRoute
@@ -288,11 +300,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
+    '/launch-startup': {
+      id: '/launch-startup'
+      path: '/launch-startup'
+      fullPath: '/launch-startup'
+      preLoaderRoute: typeof LaunchStartupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -335,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/overview'
       fullPath: '/dashboard/overview'
       preLoaderRoute: typeof DashboardOverviewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/launch-startup': {
+      id: '/dashboard/launch-startup'
+      path: '/launch-startup'
+      fullPath: '/dashboard/launch-startup'
+      preLoaderRoute: typeof DashboardLaunchStartupRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/(auth)/verify-email': {
@@ -432,11 +451,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteRouteChildren {
+  DashboardLaunchStartupRoute: typeof DashboardLaunchStartupRoute
   DashboardOverviewRoute: typeof DashboardOverviewRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardLaunchStartupRoute: DashboardLaunchStartupRoute,
   DashboardOverviewRoute: DashboardOverviewRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
@@ -448,7 +469,7 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  OnboardingRoute: OnboardingRoute,
+  LaunchStartupRoute: LaunchStartupRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authSignInRoute: authSignInRoute,
   authSignUpRoute: authSignUpRoute,

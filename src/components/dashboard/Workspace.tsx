@@ -1,12 +1,16 @@
 "use client";
 
-import { useQuery } from "convex/react";
 import { useNavigate } from "@tanstack/react-router";
-import { Building2, Check, ChevronsUpDown, Loader2, Plus, Rocket } from "lucide-react";
-import * as React from "react";
-import { api } from "../../../convex/_generated/api";
-import { authClient } from "@/lib/auth-client";
-
+import { useQuery } from "convex/react";
+import {
+	Building2,
+	Check,
+	ChevronsUpDown,
+	Loader2,
+	Plus,
+	Rocket,
+} from "lucide-react";
+import { useEffect, useMemo } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -22,6 +26,8 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
+import { api } from "../../../convex/_generated/api";
 
 const STAGE_LABELS = {
 	IDEA: "Idea Stage",
@@ -35,28 +41,29 @@ export function Workspace() {
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
 	const session = authClient.useSession();
-	
+
 	// Get organizations from Better Auth using the listOrganizations hook
-	const { data: organizationsData, isPending: orgsPending } = authClient.useListOrganizations();
+	const { data: organizationsData, isPending: orgsPending } =
+		authClient.useListOrganizations();
 	const organizations = organizationsData || [];
 	const activeOrgId = session.data?.session?.activeOrganizationId;
 
 	// Get organization IDs to fetch startups
-	const orgIds = React.useMemo(
+	const orgIds = useMemo(
 		() => organizations.map((org: { id: string }) => org.id),
-		[organizations]
+		[organizations],
 	);
 
 	// Fetch startups for all organizations
 	const startups = useQuery(
 		api.startups.getByOrganizationIds,
-		orgIds.length > 0 ? { organizationIds: orgIds } : "skip"
+		orgIds.length > 0 ? { organizationIds: orgIds } : "skip",
 	);
 
 	// Create a map of startups by organizationId for easy lookup
-	const startupsByOrgId = React.useMemo(() => {
+	const startupsByOrgId = useMemo(() => {
 		if (!startups) return {};
-		const map: Record<string, any> = {};
+		const map: Record<string, NonNullable<typeof startups>[number]> = {};
 		for (const startup of startups) {
 			if (startup) {
 				map[startup.organizationId] = startup;
@@ -65,23 +72,42 @@ export function Workspace() {
 		return map;
 	}, [startups]);
 
-	const activeOrg = React.useMemo(() => {
-		if (!organizations || !activeOrgId) return null;
-		return organizations.find((org: { id: string }) => org.id === activeOrgId);
+	const activeOrg = useMemo(() => {
+		if (!organizations) return null;
+		// If no active org is set, use the first organization
+		if (!activeOrgId) return organizations[0];
+		return (
+			organizations.find((org: { id: string }) => org.id === activeOrgId) ||
+			organizations[0]
+		);
 	}, [organizations, activeOrgId]);
+
+	// Auto-set active organization if none is set
+	useEffect(() => {
+		if (organizations.length > 0 && !activeOrgId && !orgsPending) {
+			// Set the first organization as active
+			authClient.organization
+				.setActive({
+					organizationId: organizations[0].id,
+				})
+				.catch((error) => {
+					console.error("Failed to set default organization:", error);
+				});
+		}
+	}, [organizations, activeOrgId, orgsPending]);
 
 	const handleOrgChange = async (orgId: string) => {
 		// Don't do anything if clicking on the already active organization
 		if (orgId === activeOrgId) {
 			return;
 		}
-		
+
 		try {
 			// Update the active organization in Better Auth
 			await authClient.organization.setActive({
 				organizationId: orgId,
 			});
-			
+
 			// Refresh the page to reflect the new active organization
 			window.location.reload();
 		} catch (error) {
@@ -107,26 +133,9 @@ export function Workspace() {
 		);
 	}
 
-	// No organizations state
-	if (!organizations || organizations.length === 0) {
-		return (
-			<SidebarMenu>
-				<SidebarMenuItem>
-					<SidebarMenuButton size="lg" disabled>
-						<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-							<Building2 className="size-4" />
-						</div>
-						<div className="grid flex-1 text-left text-sm leading-tight">
-							<span className="truncate font-medium">No Workspace</span>
-							<span className="truncate text-xs">Create a startup</span>
-						</div>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
-			</SidebarMenu>
-		);
-	}
-
-	if (!activeOrg) {
+	// If no active org or no organizations, return null
+	// (The dashboard route redirects to launch-startup if no orgs exist)
+	if (!activeOrg || !organizations || organizations.length === 0) {
 		return null;
 	}
 
@@ -178,39 +187,41 @@ export function Workspace() {
 						<DropdownMenuLabel className="text-muted-foreground text-xs">
 							Workspaces
 						</DropdownMenuLabel>
-						{organizations.map((org: { id: string; name: string }, index: number) => {
-							const Icon = getOrgIcon(org);
-							const startup = startupsByOrgId[org.id];
-							const isActive = org.id === activeOrgId;
-							return (
-								<DropdownMenuItem
-									key={org.id}
-									onClick={() => handleOrgChange(org.id)}
-									className="gap-2 p-2"
-								>
-									<div className="flex size-6 items-center justify-center rounded-md border">
-										<Icon className="size-3.5 shrink-0" />
-									</div>
-									<div className="flex flex-col flex-1">
-										<span className="font-medium">{org.name}</span>
-										{startup && (
-											<span className="text-xs text-muted-foreground">
-												{startup.industry}
-											</span>
+						{organizations.map(
+							(org: { id: string; name: string }, index: number) => {
+								const Icon = getOrgIcon(org);
+								const startup = startupsByOrgId[org.id];
+								const isActive = org.id === activeOrgId;
+								return (
+									<DropdownMenuItem
+										key={org.id}
+										onClick={() => handleOrgChange(org.id)}
+										className="gap-2 p-2"
+									>
+										<div className="flex size-6 items-center justify-center rounded-md border">
+											<Icon className="size-3.5 shrink-0" />
+										</div>
+										<div className="flex flex-col flex-1">
+											<span className="font-medium">{org.name}</span>
+											{startup && (
+												<span className="text-xs text-muted-foreground">
+													{startup.industry}
+												</span>
+											)}
+										</div>
+										{isActive ? (
+											<Check className="size-4 text-primary" />
+										) : (
+											<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 										)}
-									</div>
-									{isActive ? (
-										<Check className="size-4 text-primary" />
-									) : (
-										<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-									)}
-								</DropdownMenuItem>
-							);
-						})}
+									</DropdownMenuItem>
+								);
+							},
+						)}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem 
+						<DropdownMenuItem
 							className="gap-2 p-2"
-							onClick={() => navigate({ to: "/onboarding" })}
+							onClick={() => navigate({ to: "/launch-startup" })}
 						>
 							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
 								<Plus className="size-4" />

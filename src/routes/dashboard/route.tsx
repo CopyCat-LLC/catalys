@@ -4,12 +4,8 @@ import {
 	Outlet,
 	redirect,
 } from "@tanstack/react-router";
-import {
-	BarChart3,
-	Home,
-	Settings,
-	Users,
-} from "lucide-react";
+import { createServerFn } from "@tanstack/react-start";
+import { BarChart3, Home, Settings, Users } from "lucide-react";
 import { Workspace } from "@/components/dashboard/Workspace";
 import {
 	Sidebar,
@@ -27,16 +23,46 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 
+// Server function to check if user has any organizations
+const checkUserOrganizations = createServerFn({ method: "GET" }).handler(
+	async () => {
+		try {
+			const { api } = await import("../../../convex/_generated/api");
+			const { fetchQuery } = await import("@/lib/auth-server");
+
+			console.log("Checking organizations via Convex query...");
+
+			// Use the Convex query which checks the member table directly
+			const hasOrgs = await fetchQuery(api.organizations.hasOrganizations, {});
+
+			console.log("Organization check result:", { hasOrgs });
+			return { hasOrganizations: hasOrgs };
+		} catch (error) {
+			console.error("Error checking organizations:", error);
+			// On error, assume no organizations and redirect to launch-startup
+			return { hasOrganizations: false };
+		}
+	},
+);
+
 export const Route = createFileRoute("/dashboard")({
-	beforeLoad: ({ context, location }) => {
-		// Assume 'auth' is available in your router context and has isAuthenticated
+	beforeLoad: async ({ context, location }) => {
+		// Check authentication
 		if (!context.userId) {
 			throw redirect({
 				to: "/sign-in",
 				search: {
-					// Save the current location to redirect back after a successful login
 					redirect: location.href,
 				},
+			});
+		}
+
+		// Check if user has organizations server-side
+		const { hasOrganizations } = await checkUserOrganizations();
+
+		if (!hasOrganizations) {
+			throw redirect({
+				to: "/launch-startup",
 			});
 		}
 	},

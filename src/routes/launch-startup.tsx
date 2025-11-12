@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { CheckCircle2, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -37,7 +37,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { api } from "../../convex/_generated/api";
 
-export const Route = createFileRoute("/onboarding")({
+export const Route = createFileRoute("/launch-startup")({
+	beforeLoad: ({ context, location }) => {
+		// Require authentication to access launch-startup
+		if (!context.userId) {
+			throw redirect({
+				to: "/sign-in",
+				search: {
+					redirect: location.href,
+				},
+			});
+		}
+	},
 	component: OnboardingPage,
 });
 
@@ -60,7 +71,11 @@ const onboardingSchema = z.object({
 		.max(100, "Keep it under 100 characters"),
 	industry: z.string().min(1, "Please select an industry"),
 	location: z.string().optional(),
-	website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+	website: z
+		.string()
+		.url("Please enter a valid URL")
+		.optional()
+		.or(z.literal("")),
 
 	// Step 2: Details
 	description: z
@@ -125,7 +140,6 @@ function OnboardingPage() {
 	const [currentStep, setCurrentStep] = useState(1);
 	const [error, setError] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const navigate = useNavigate();
 	const createStartup = useMutation(api.startups.create);
 
 	const session = authClient.useSession();
@@ -235,16 +249,27 @@ function OnboardingPage() {
 			const organizationId = orgResult.data.id;
 
 			// Invite co-founders to the organization
+			// Note: We'll save co-founders to Convex and handle invitations separately
+			// to avoid blocking the onboarding flow
 			if (data.coFounders && data.coFounders.length > 0) {
+				console.log("Inviting co-founders...");
 				for (const coFounder of data.coFounders) {
-					await authClient.organization.inviteMember({
-						organizationId,
-						email: coFounder.email,
-						role: "member", // You can customize roles as needed
-					});
+					try {
+						await authClient.organization.inviteMember({
+							organizationId,
+							email: coFounder.email,
+							role: "member",
+						});
+						console.log(`Invited ${coFounder.email}`);
+					} catch (inviteError) {
+						// Log error but don't block onboarding
+						console.warn(`Failed to invite ${coFounder.email}:`, inviteError);
+						// Co-founder info will still be saved to Convex for future invitation
+					}
 				}
 			}
 
+			console.log("Creating startup in Convex...");
 			// Create startup in Convex
 			await createStartup({
 				name: data.name,
@@ -264,14 +289,21 @@ function OnboardingPage() {
 				userId: session.data.user.id,
 				coFounders: data.coFounders,
 			});
+			console.log("Startup created successfully");
 
+			console.log("Setting active organization...");
 			// Set active organization
 			await authClient.organization.setActive({
 				organizationId,
 			});
+			console.log("Active organization set");
 
-			// Navigate to dashboard
-			navigate({ to: "/dashboard" });
+			// Small delay to ensure membership is fully propagated
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			console.log("Navigating to dashboard...");
+			// Force a full page reload to ensure server-side checks pick up the new organization
+			window.location.href = "/dashboard";
 		} catch (err) {
 			console.error("Onboarding error:", err);
 			setError("Failed to complete onboarding. Please try again.");
@@ -353,12 +385,12 @@ function OnboardingPage() {
 					</CardHeader>
 					<CardContent>
 						<Form {...form}>
-							<form 
-								onSubmit={form.handleSubmit(onSubmit)} 
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
 								className="space-y-6"
 								onKeyDown={(e) => {
 									// Prevent Enter key from submitting form unless on last step
-									if (e.key === 'Enter' && currentStep < STEPS.length) {
+									if (e.key === "Enter" && currentStep < STEPS.length) {
 										e.preventDefault();
 									}
 								}}
@@ -555,7 +587,9 @@ function OnboardingPage() {
 															<SelectContent>
 																<SelectItem value="IDEA">Idea</SelectItem>
 																<SelectItem value="MVP">MVP</SelectItem>
-																<SelectItem value="LAUNCHED">Launched</SelectItem>
+																<SelectItem value="LAUNCHED">
+																	Launched
+																</SelectItem>
 																<SelectItem value="GROWTH">Growth</SelectItem>
 																<SelectItem value="SCALING">Scaling</SelectItem>
 															</SelectContent>
@@ -572,11 +606,7 @@ function OnboardingPage() {
 													<FormItem>
 														<FormLabel>Founded Date</FormLabel>
 														<FormControl>
-															<Input
-																type="month"
-																className="h-11"
-																{...field}
-															/>
+															<Input type="month" className="h-11" {...field} />
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -594,9 +624,7 @@ function OnboardingPage() {
 											name="traction"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>
-														Traction & Metrics (Optional)
-													</FormLabel>
+													<FormLabel>Traction & Metrics (Optional)</FormLabel>
 													<FormControl>
 														<Textarea
 															placeholder="Share key metrics: users, revenue, growth rate, partnerships, etc."
@@ -629,10 +657,16 @@ function OnboardingPage() {
 																</SelectTrigger>
 															</FormControl>
 															<SelectContent>
-																<SelectItem value="PRE_SEED">Pre-Seed</SelectItem>
+																<SelectItem value="PRE_SEED">
+																	Pre-Seed
+																</SelectItem>
 																<SelectItem value="SEED">Seed</SelectItem>
-																<SelectItem value="SERIES_A">Series A</SelectItem>
-																<SelectItem value="SERIES_B">Series B</SelectItem>
+																<SelectItem value="SERIES_A">
+																	Series A
+																</SelectItem>
+																<SelectItem value="SERIES_B">
+																	Series B
+																</SelectItem>
 																<SelectItem value="SERIES_C_PLUS">
 																	Series C+
 																</SelectItem>
@@ -660,7 +694,9 @@ function OnboardingPage() {
 																className="h-11"
 																{...field}
 																onChange={(e) =>
-																	field.onChange(Number.parseInt(e.target.value))
+																	field.onChange(
+																		Number.parseInt(e.target.value),
+																	)
 																}
 															/>
 														</FormControl>
@@ -805,7 +841,9 @@ function OnboardingPage() {
 																						{...field}
 																						onChange={(e) =>
 																							field.onChange(
-																								Number.parseFloat(e.target.value),
+																								Number.parseFloat(
+																									e.target.value,
+																								),
 																							)
 																						}
 																					/>
@@ -826,8 +864,9 @@ function OnboardingPage() {
 											<CardContent className="pt-4">
 												<p className="text-sm text-muted-foreground">
 													<strong>Note:</strong> Invitations will be sent to
-													co-founders after you complete onboarding. They'll be able
-													to join your organization and access the dashboard.
+													co-founders after you complete onboarding. They'll be
+													able to join your organization and access the
+													dashboard.
 												</p>
 											</CardContent>
 										</Card>
@@ -876,4 +915,3 @@ function OnboardingPage() {
 		</div>
 	);
 }
-
