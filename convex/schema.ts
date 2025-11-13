@@ -15,9 +15,18 @@ export default defineSchema({
     shortDescription: v.string(), // 50 characters max
     description: v.string(), // What is your company going to make?
     website: v.optional(v.string()),
-    demoVideo: v.optional(v.string()),
     futureLocation: v.string(),
     locationExplanation: v.string(),
+    
+    // Business Info
+    industry: v.string(),
+    stage: v.union(
+      v.literal('IDEA'),
+      v.literal('MVP'),
+      v.literal('LAUNCHED'),
+      v.literal('GROWTH'),
+      v.literal('SCALING')
+    ),
     
     // Progress
     howFarAlong: v.string(),
@@ -26,13 +35,6 @@ export default defineSchema({
     peopleUsing: v.boolean(),
     versionTimeline: v.optional(v.string()),
     hasRevenue: v.boolean(),
-    appliedBefore: v.union(
-      v.literal('first_time'),
-      v.literal('same_idea'),
-      v.literal('different_idea')
-    ),
-    previousApplicationNotes: v.optional(v.string()),
-    incubatorInfo: v.optional(v.string()),
     
     // Idea
     whyThisIdea: v.string(),

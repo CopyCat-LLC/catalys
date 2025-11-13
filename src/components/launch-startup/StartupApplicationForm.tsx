@@ -1,4 +1,4 @@
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Plus, X } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,11 +46,16 @@ const CATEGORIES = [
 	"Other",
 ];
 
+export type CoFounder = {
+	email: string;
+	role: string;
+	equityPercentage: number;
+};
+
 export type OnboardingFormValues = {
 	companyName: string;
 	shortDescription: string;
 	companyUrl?: string;
-	demoVideo?: string;
 	whatMaking: string;
 	futureLocation: string;
 	locationExplanation: string;
@@ -60,9 +65,6 @@ export type OnboardingFormValues = {
 	peopleUsing: "yes" | "no";
 	versionTimeline?: string;
 	hasRevenue: "yes" | "no";
-	appliedBefore: "same_idea" | "different_idea" | "first_time";
-	previousApplicationNotes?: string;
-	incubatorInfo?: string;
 	whyThisIdea: string;
 	customerNeed: string;
 	competitors: string;
@@ -70,6 +72,7 @@ export type OnboardingFormValues = {
 	category: string;
 	hasLegalEntity: "yes" | "no";
 	legalEntities?: string;
+	coFounders: CoFounder[];
 	equityBreakdown?: string;
 	investmentTaken: "yes" | "no";
 	currentlyFundraising: "yes" | "no";
@@ -283,27 +286,6 @@ export function StartupApplicationForm({
 
 											<FormField
 												control={form.control}
-												name="demoVideo"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Demo Video (optional)</FormLabel>
-														<FormControl>
-															<Input
-																placeholder="https://youtube.com/watch?v=..."
-																className="h-11"
-																{...field}
-															/>
-														</FormControl>
-														<FormDescription className="text-xs">
-															Link to a video demo of your product
-														</FormDescription>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
 												name="howFarAlong"
 												render={({ field }) => (
 													<FormItem>
@@ -311,7 +293,7 @@ export function StartupApplicationForm({
 														<FormControl>
 															<Textarea
 																placeholder="Describe your current progress, what you've built, and where you are in development..."
-																className="min-h-32 resize-none"
+																className="min-h-24 resize-none"
 																{...field}
 															/>
 														</FormControl>
@@ -438,81 +420,6 @@ export function StartupApplicationForm({
 												)}
 											/>
 
-											<FormField
-												control={form.control}
-												name="appliedBefore"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Have you applied before? *</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="h-11">
-																	<SelectValue placeholder="Select..." />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																<SelectItem value="first_time">
-																	First time applying
-																</SelectItem>
-																<SelectItem value="same_idea">
-																	Yes, with same idea
-																</SelectItem>
-																<SelectItem value="different_idea">
-																	Yes, with different idea
-																</SelectItem>
-															</SelectContent>
-														</Select>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											{form.watch("appliedBefore") !== "first_time" && (
-												<FormField
-													control={form.control}
-													name="previousApplicationNotes"
-													render={({ field }) => (
-														<FormItem>
-															<FormLabel>
-																{form.watch("appliedBefore") === "same_idea"
-																	? "Did anything change since last application?"
-																	: "Why did you pivot and what did you learn from the last idea?"}
-															</FormLabel>
-															<FormControl>
-																<Textarea
-																	placeholder="Please explain..."
-																	className="min-h-24 resize-none"
-																	{...field}
-																/>
-															</FormControl>
-															<FormMessage />
-														</FormItem>
-													)}
-												/>
-											)}
-
-											<FormField
-												control={form.control}
-												name="incubatorInfo"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>
-															Incubators or accelerators (optional)
-														</FormLabel>
-														<FormControl>
-															<Textarea
-																placeholder="If you have already participated or committed to participate in an incubator, accelerator, or pre-accelerator program, please tell us about it."
-																className="min-h-24 resize-none"
-																{...field}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
 										</div>
 									)}
 
@@ -679,15 +586,147 @@ export function StartupApplicationForm({
 												/>
 											)}
 
+											{/* Co-Founders Section */}
+											<div className="space-y-4">
+												<div className="flex items-center justify-between">
+													<div>
+														<h3 className="text-sm font-medium">
+															Co-Founders & Equity Split
+														</h3>
+														<p className="text-xs text-muted-foreground mt-1">
+															Invite co-founders and define equity distribution
+														</p>
+													</div>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => {
+															const currentCoFounders =
+																form.getValues("coFounders") || [];
+															form.setValue("coFounders", [
+																...currentCoFounders,
+																{ email: "", role: "", equityPercentage: 0 },
+															]);
+														}}
+													>
+														<Plus className="w-4 h-4 mr-1" />
+														Add Co-Founder
+													</Button>
+												</div>
+
+												{form.watch("coFounders")?.map((_, index) => (
+													<div
+														key={index}
+														className="space-y-3 p-3 border border-border/50 rounded-md relative"
+													>
+														<Button
+															type="button"
+															variant="ghost"
+															size="sm"
+															className="absolute top-2 right-2 h-6 w-6 p-0"
+															onClick={() => {
+																const currentCoFounders =
+																	form.getValues("coFounders");
+																form.setValue(
+																	"coFounders",
+																	currentCoFounders.filter((_, i) => i !== index),
+																);
+															}}
+														>
+															<X className="w-4 h-4" />
+														</Button>
+
+														<FormField
+															control={form.control}
+															name={`coFounders.${index}.email`}
+															render={({ field }) => (
+																<FormItem>
+																	<FormLabel className="text-xs">
+																		Email Address *
+																	</FormLabel>
+																	<FormControl>
+																		<Input
+																			placeholder="cofounder@example.com"
+																			className="h-9"
+																			{...field}
+																		/>
+																	</FormControl>
+																	<FormMessage />
+																</FormItem>
+															)}
+														/>
+
+														<div className="grid grid-cols-2 gap-3">
+															<FormField
+																control={form.control}
+																name={`coFounders.${index}.role`}
+																render={({ field }) => (
+																	<FormItem>
+																		<FormLabel className="text-xs">
+																			Role *
+																		</FormLabel>
+																		<FormControl>
+																			<Input
+																				placeholder="e.g., Co-Founder & CTO"
+																				className="h-9"
+																				{...field}
+																			/>
+																		</FormControl>
+																		<FormMessage />
+																	</FormItem>
+																)}
+															/>
+
+															<FormField
+																control={form.control}
+																name={`coFounders.${index}.equityPercentage`}
+																render={({ field }) => (
+																	<FormItem>
+																		<FormLabel className="text-xs">
+																			Equity % *
+																		</FormLabel>
+																		<FormControl>
+																			<Input
+																				type="number"
+																				placeholder="25"
+																				min="0"
+																				max="100"
+																				step="0.01"
+																				className="h-9"
+																				{...field}
+																				onChange={(e) =>
+																					field.onChange(Number(e.target.value))
+																				}
+																			/>
+																		</FormControl>
+																		<FormMessage />
+																	</FormItem>
+																)}
+															/>
+														</div>
+													</div>
+												))}
+
+												{form.watch("coFounders")?.length === 0 && (
+													<p className="text-xs text-muted-foreground text-center py-4">
+														No co-founders added yet. Click "Add Co-Founder" to
+														invite team members.
+													</p>
+												)}
+											</div>
+
 											<FormField
 												control={form.control}
 												name="equityBreakdown"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>Equity breakdown (optional)</FormLabel>
+														<FormLabel>
+															Additional equity notes (optional)
+														</FormLabel>
 														<FormControl>
 															<Textarea
-																placeholder="Please describe the breakdown of the equity ownership in percentages among the founders, employees, and any other stockholders."
+																placeholder="Any additional details about equity distribution, vesting schedules, or other stockholders..."
 																className="min-h-24 resize-none"
 																{...field}
 															/>

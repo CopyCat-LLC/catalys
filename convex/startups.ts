@@ -9,7 +9,6 @@ export const create = mutation({
     shortDescription: v.string(),
     description: v.string(),
     website: v.optional(v.string()),
-    demoVideo: v.optional(v.string()),
     futureLocation: v.string(),
     locationExplanation: v.string(),
     
@@ -20,13 +19,6 @@ export const create = mutation({
     peopleUsing: v.boolean(),
     versionTimeline: v.optional(v.string()),
     hasRevenue: v.boolean(),
-    appliedBefore: v.union(
-      v.literal('first_time'),
-      v.literal('same_idea'),
-      v.literal('different_idea')
-    ),
-    previousApplicationNotes: v.optional(v.string()),
-    incubatorInfo: v.optional(v.string()),
     
     // Idea
     whyThisIdea: v.string(),
@@ -72,18 +64,16 @@ export const create = mutation({
       shortDescription: args.shortDescription,
       description: args.description,
       website: args.website,
-      demoVideo: args.demoVideo,
       futureLocation: args.futureLocation,
       locationExplanation: args.locationExplanation,
+      industry: args.category, // Use category as industry
+      stage: 'IDEA' as const, // Default to IDEA stage for new applications
       howFarAlong: args.howFarAlong,
       workingTime: args.workingTime,
       techStack: args.techStack,
       peopleUsing: args.peopleUsing,
       versionTimeline: args.versionTimeline,
       hasRevenue: args.hasRevenue,
-      appliedBefore: args.appliedBefore,
-      previousApplicationNotes: args.previousApplicationNotes,
-      incubatorInfo: args.incubatorInfo,
       whyThisIdea: args.whyThisIdea,
       customerNeed: args.customerNeed,
       competitors: args.competitors,

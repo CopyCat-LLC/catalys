@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as coFounders from "../coFounders.js";
 import type * as http from "../http.js";
 import type * as lib_resend_email from "../lib/resend/email.js";
 import type * as lib_resend_emails_resetPassword from "../lib/resend/emails/resetPassword.js";
@@ -28,6 +29,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  coFounders: typeof coFounders;
   http: typeof http;
   "lib/resend/email": typeof lib_resend_email;
   "lib/resend/emails/resetPassword": typeof lib_resend_emails_resetPassword;

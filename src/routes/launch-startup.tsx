@@ -39,11 +39,6 @@ const onboardingSchema = z.object({
 		.url("Please enter a valid URL")
 		.optional()
 		.or(z.literal("")),
-	demoVideo: z
-		.string()
-		.url("Please enter a valid URL")
-		.optional()
-		.or(z.literal("")),
 	whatMaking: z.string().min(20, "Please describe what you're making"),
 	futureLocation: z
 		.string()
@@ -59,9 +54,6 @@ const onboardingSchema = z.object({
 	peopleUsing: z.enum(["yes", "no"]),
 	versionTimeline: z.string().optional(),
 	hasRevenue: z.enum(["yes", "no"]),
-	appliedBefore: z.enum(["same_idea", "different_idea", "first_time"]),
-	previousApplicationNotes: z.string().optional(),
-	incubatorInfo: z.string().optional(),
 
 	// Idea Section
 	whyThisIdea: z.string().min(20, "Please explain why you picked this idea"),
@@ -75,6 +67,16 @@ const onboardingSchema = z.object({
 	// Equity Section
 	hasLegalEntity: z.enum(["yes", "no"]),
 	legalEntities: z.string().optional(),
+	coFounders: z.array(
+		z.object({
+			email: z.string().email("Please enter a valid email"),
+			role: z.string().min(1, "Role is required"),
+			equityPercentage: z
+				.number()
+				.min(0, "Equity must be at least 0")
+				.max(100, "Equity cannot exceed 100"),
+		}),
+	),
 	equityBreakdown: z.string().optional(),
 	investmentTaken: z.enum(["yes", "no"]),
 	currentlyFundraising: z.enum(["yes", "no"]),
@@ -85,6 +87,7 @@ function OnboardingPage() {
 	const [error, setError] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const createStartup = useMutation(api.startups.create);
+	const createCoFoundersBatch = useMutation(api.coFounders.createBatch);
 
 	const session = authClient.useSession();
 
@@ -94,7 +97,6 @@ function OnboardingPage() {
 			companyName: "",
 			shortDescription: "",
 			companyUrl: "",
-			demoVideo: "",
 			whatMaking: "",
 			futureLocation: "",
 			locationExplanation: "",
@@ -104,9 +106,6 @@ function OnboardingPage() {
 			peopleUsing: "no",
 			versionTimeline: "",
 			hasRevenue: "no",
-			appliedBefore: "first_time",
-			previousApplicationNotes: "",
-			incubatorInfo: "",
 			whyThisIdea: "",
 			customerNeed: "",
 			competitors: "",
@@ -114,6 +113,7 @@ function OnboardingPage() {
 			category: "",
 			hasLegalEntity: "no",
 			legalEntities: "",
+			coFounders: [],
 			equityBreakdown: "",
 			investmentTaken: "no",
 			currentlyFundraising: "no",
@@ -145,13 +145,11 @@ function OnboardingPage() {
 			case 3: // Progress
 				fieldsToValidate.push(
 					"companyUrl",
-					"demoVideo",
 					"howFarAlong",
 					"workingTime",
 					"techStack",
 					"peopleUsing",
 					"hasRevenue",
-					"appliedBefore",
 				);
 				break;
 			case 4: // Equity
@@ -213,13 +211,12 @@ function OnboardingPage() {
 
 			console.log("Creating startup in Convex...");
 			// Create startup in Convex with application data
-			await createStartup({
+			const { startupId } = await createStartup({
 				// Startup info
 				name: data.companyName,
 				shortDescription: data.shortDescription,
 				description: data.whatMaking,
 				website: data.companyUrl || undefined,
-				demoVideo: data.demoVideo || undefined,
 				futureLocation: data.futureLocation,
 				locationExplanation: data.locationExplanation,
 
@@ -230,9 +227,6 @@ function OnboardingPage() {
 				peopleUsing: data.peopleUsing === "yes",
 				versionTimeline: data.versionTimeline,
 				hasRevenue: data.hasRevenue === "yes",
-				appliedBefore: data.appliedBefore,
-				previousApplicationNotes: data.previousApplicationNotes,
-				incubatorInfo: data.incubatorInfo,
 
 				// Idea
 				whyThisIdea: data.whyThisIdea,
@@ -252,6 +246,18 @@ function OnboardingPage() {
 				userId: session.data.user.id,
 			});
 			console.log("Startup created successfully");
+
+			// Create co-founder invitations if any
+			if (data.coFounders && data.coFounders.length > 0) {
+				console.log("Creating co-founder invitations...");
+				await createCoFoundersBatch({
+					startupId,
+					organizationId,
+					coFounders: data.coFounders,
+					invitedBy: session.data.user.id,
+				});
+				console.log("Co-founder invitations sent");
+			}
 
 			console.log("Setting active organization...");
 			// Set active organization
@@ -275,6 +281,9 @@ function OnboardingPage() {
 
 	// Watch form values for preview
 	const formValues = form.watch();
+	
+	// Get user's full name from session
+	const userFullName = session.data?.user?.name || "Your Name";
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
@@ -287,7 +296,7 @@ function OnboardingPage() {
 				error={error}
 				isSubmitting={isSubmitting}
 			/>
-			<StartupPreviewCard formValues={formValues} />
+			<StartupPreviewCard formValues={formValues} userFullName={userFullName} />
 		</div>
 	);
 }
