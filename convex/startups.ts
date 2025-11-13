@@ -9,30 +9,36 @@ export const create = mutation({
     shortDescription: v.string(),
     description: v.string(),
     website: v.optional(v.string()),
-    futureLocation: v.string(),
-    locationExplanation: v.string(),
-    
-    // Progress
-    howFarAlong: v.string(),
-    workingTime: v.string(),
-    techStack: v.string(),
-    peopleUsing: v.boolean(),
-    versionTimeline: v.optional(v.string()),
-    hasRevenue: v.boolean(),
-    
-    // Idea
-    whyThisIdea: v.string(),
-    customerNeed: v.string(),
-    competitors: v.string(),
-    monetization: v.string(),
-    category: v.string(),
-    
-    // Equity
-    hasLegalEntity: v.boolean(),
-    legalEntities: v.optional(v.string()),
-    equityBreakdown: v.optional(v.string()),
-    investmentTaken: v.boolean(),
-    currentlyFundraising: v.boolean(),
+    industry: v.string(),
+    stage: v.union(
+      v.literal('IDEA'),
+      v.literal('MVP'),
+      v.literal('LAUNCHED'),
+      v.literal('GROWTH'),
+      v.literal('SCALING')
+    ),
+    location: v.optional(v.string()),
+    foundedDate: v.optional(v.string()),
+    problemSolving: v.string(),
+    targetMarket: v.string(),
+    traction: v.optional(v.string()),
+    fundingStage: v.optional(
+      v.union(
+        v.literal('PRE_SEED'),
+        v.literal('SEED'),
+        v.literal('SERIES_A'),
+        v.literal('SERIES_B'),
+        v.literal('SERIES_C_PLUS'),
+        v.literal('BOOTSTRAPPED')
+      )
+    ),
+    teamSize: v.optional(v.number()),
+    coFounders: v.optional(v.array(v.object({
+      name: v.optional(v.string()),
+      email: v.string(),
+      role: v.string(),
+      equityPercentage: v.number(),
+    }))), 
     
     organizationId: v.string(),
     userId: v.string(),
@@ -56,7 +62,7 @@ export const create = mutation({
 
     const now = Date.now()
 
-    // Create the startup with all new fields
+    // Create the startup
     const startupId = await ctx.db.insert('startups', {
       organizationId: args.organizationId,
       name: args.name,
@@ -64,30 +70,47 @@ export const create = mutation({
       shortDescription: args.shortDescription,
       description: args.description,
       website: args.website,
-      futureLocation: args.futureLocation,
-      locationExplanation: args.locationExplanation,
-      industry: args.category, // Use category as industry
-      stage: 'IDEA' as const, // Default to IDEA stage for new applications
-      howFarAlong: args.howFarAlong,
-      workingTime: args.workingTime,
-      techStack: args.techStack,
-      peopleUsing: args.peopleUsing,
-      versionTimeline: args.versionTimeline,
-      hasRevenue: args.hasRevenue,
-      whyThisIdea: args.whyThisIdea,
-      customerNeed: args.customerNeed,
-      competitors: args.competitors,
-      monetization: args.monetization,
-      category: args.category,
-      hasLegalEntity: args.hasLegalEntity,
-      legalEntities: args.legalEntities,
-      equityBreakdown: args.equityBreakdown,
-      investmentTaken: args.investmentTaken,
-      currentlyFundraising: args.currentlyFundraising,
+      industry: args.industry,
+      stage: args.stage,
+      futureLocation: args.location || '',
+      locationExplanation: '',
+      howFarAlong: args.traction || '',
+      workingTime: '',
+      techStack: '',
+      peopleUsing: false,
+      versionTimeline: args.foundedDate,
+      hasRevenue: false,
+      whyThisIdea: args.problemSolving,
+      customerNeed: args.targetMarket,
+      competitors: '',
+      monetization: '',
+      category: args.industry,
+      hasLegalEntity: false,
+      legalEntities: '',
+      equityBreakdown: '',
+      investmentTaken: args.fundingStage ? args.fundingStage !== 'BOOTSTRAPPED' : false,
+      currentlyFundraising: false,
       createdBy: args.userId,
       createdAt: now,
       updatedAt: now,
     })
+
+    // Create co-founder records if provided
+    if (args.coFounders && args.coFounders.length > 0) {
+      for (const coFounder of args.coFounders) {
+        await ctx.db.insert('coFounders', {
+          startupId,
+          organizationId: args.organizationId,
+          email: coFounder.email,
+          name: coFounder.name,
+          role: coFounder.role,
+          equityPercentage: coFounder.equityPercentage,
+          invitationStatus: 'PENDING',
+          invitedBy: args.userId,
+          invitedAt: now,
+        })
+      }
+    }
 
     // Mark user onboarding as completed
     const userProfile = await ctx.db

@@ -1,4 +1,5 @@
 import { CheckCircle2, Loader2, Plus, X } from "lucide-react";
+import { motion } from "motion/react";
 import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,6 +48,7 @@ const CATEGORIES = [
 ];
 
 export type CoFounder = {
+	id?: string;
 	email: string;
 	role: string;
 	equityPercentage: number;
@@ -98,11 +100,15 @@ export function StartupApplicationForm({
 	isSubmitting,
 }: StartupApplicationFormProps) {
 	return (
-		<div className="w-1/2 flex flex-col items-center justify-center border-r border-border/50 h-screen">
+		<div className="w-1/2 flex flex-col items-center justify-center border-r border-border/50 h-screen bg-black z-10">
 			<div className="flex flex-col items-center justify-center mb-8">
 				<Logo />
 			</div>
-			<div className="bg-zinc-800 rounded-xl p-0.5 max-w-xl w-full transition-all ease-in-out">
+			<motion.div
+				layout
+				transition={{ duration: 0.3, ease: "easeInOut" }}
+				className="bg-zinc-800 rounded-xl p-0.5 max-w-xl w-full"
+			>
 				<div className="flex flex-col w-full p-6 gap-8">
 					<h2 className="text-base font-semibold">Launch your Startup</h2>
 					{/* Steps Indicator */}
@@ -138,7 +144,7 @@ export function StartupApplicationForm({
 						))}
 					</div>
 				</div>
-				<Card className="bg-zinc-900 border-none rounded-xl px-6 pb-0 pt-6 transition-all ease-in-out">
+				<Card className="bg-zinc-900 border-none rounded-xl px-6 pb-0 pt-6">
 					<Card className="bg-transparent border-none">
 						<CardContent className="p-0">
 							<Form {...form}>
@@ -419,7 +425,6 @@ export function StartupApplicationForm({
 													</FormItem>
 												)}
 											/>
-
 										</div>
 									)}
 
@@ -606,7 +611,12 @@ export function StartupApplicationForm({
 																form.getValues("coFounders") || [];
 															form.setValue("coFounders", [
 																...currentCoFounders,
-																{ email: "", role: "", equityPercentage: 0 },
+																{
+																	id: crypto.randomUUID(),
+																	email: "",
+																	role: "",
+																	equityPercentage: 0,
+																},
 															]);
 														}}
 													>
@@ -615,9 +625,9 @@ export function StartupApplicationForm({
 													</Button>
 												</div>
 
-												{form.watch("coFounders")?.map((_, index) => (
+												{form.watch("coFounders")?.map((cofounder, index) => (
 													<div
-														key={index}
+														key={cofounder.id || index}
 														className="space-y-3 p-3 border border-border/50 rounded-md relative"
 													>
 														<Button
@@ -630,7 +640,9 @@ export function StartupApplicationForm({
 																	form.getValues("coFounders");
 																form.setValue(
 																	"coFounders",
-																	currentCoFounders.filter((_, i) => i !== index),
+																	currentCoFounders.filter(
+																		(_, i) => i !== index,
+																	),
 																);
 															}}
 														>
@@ -831,7 +843,7 @@ export function StartupApplicationForm({
 						</CardContent>
 					</Card>
 				</Card>
-			</div>
+			</motion.div>
 		</div>
 	);
 }

@@ -1,3 +1,5 @@
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Link04Icon, Location04Icon } from "@hugeicons-pro/core-stroke-rounded";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7,8 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Link04Icon, Location04Icon } from "@hugeicons-pro/core-stroke-rounded";
+import Glow from "../ui/glow";
 import type { OnboardingFormValues } from "./StartupApplicationForm";
 
 interface StartupPreviewCardProps {
@@ -19,7 +20,8 @@ interface StartupPreviewCardProps {
 // Dummy data to show initially
 const DUMMY_DATA = {
 	companyName: "Your Startup Name",
-	shortDescription: "A brief description of what your startup does and the problem it solves for customers.",
+	shortDescription:
+		"A brief description of what your startup does and the problem it solves for customers.",
 	companyUrl: "https://yourstartup.com",
 	category: "B2B",
 	futureLocation: "San Francisco, CA",
@@ -39,37 +41,49 @@ function getInitials(name: string): string {
 		.toUpperCase();
 }
 
-export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewCardProps) {
+export function StartupPreviewCard({
+	formValues,
+	userFullName,
+}: StartupPreviewCardProps) {
 	// Use form values if available, otherwise use dummy data
 	const displayData = {
 		companyName: formValues.companyName || DUMMY_DATA.companyName,
-		shortDescription: formValues.shortDescription || DUMMY_DATA.shortDescription,
+		shortDescription:
+			formValues.shortDescription || DUMMY_DATA.shortDescription,
 		companyUrl: formValues.companyUrl || DUMMY_DATA.companyUrl,
 		category: formValues.category || DUMMY_DATA.category,
 		futureLocation: formValues.futureLocation || DUMMY_DATA.futureLocation,
-		founders: formValues.coFounders?.length 
-			? [userFullName || "You", ...formValues.coFounders.map(cf => cf.email)]
+		founders: formValues.coFounders?.length
+			? [userFullName || "You", ...formValues.coFounders.map((cf) => cf.email)]
 			: [userFullName || DUMMY_DATA.founders[0]],
 	};
 
 	// Check if user has started filling the form
-	const hasUserData = formValues.companyName || formValues.shortDescription || formValues.category;
-	
+	const hasUserData =
+		formValues.companyName ||
+		formValues.shortDescription ||
+		formValues.category;
+
 	// Get initials for avatar
 	const initials = getInitials(displayData.companyName);
 
 	return (
-		<div className="w-1/2 relative flex items-center justify-center p-8">
-			<Card className="border-border/50 shadow-2xl bg-[#161617] max-h-[90vh] overflow-y-auto w-full max-w-lg">
+		<div className="w-1/2 relative flex flex-col gap-4 items-center justify-center p-8 overflow-hidden h-screen">
+			<Glow variant="center" intensity="subtle" />
+			<Card className="border-border/50 backdrop-blur-sm shadow-2xl bg-[#161617]/50 max-h-[90vh] overflow-y-auto w-full max-w-lg">
 				<CardHeader className="space-y-3">
 					<div className="flex items-start gap-4">
-						<Avatar className="h-16 w-16 border-2 border-border/50">
-							<AvatarFallback className={`text-xl font-semibold ${!hasUserData ? "bg-muted/30 text-muted-foreground" : "bg-primary/10 text-primary"}`}>
+						<Avatar className="h-16 w-16 border-2 border-border/50 bg-[#fda123]">
+							<AvatarFallback
+								className={`text-xl font-semibold ${!hasUserData ? "bg-muted/30 text-white" : "bg-primary/10 text-white"}`}
+							>
 								{initials}
 							</AvatarFallback>
 						</Avatar>
 						<div className="flex-1">
-							<CardTitle className={`text-2xl capitalize ${!hasUserData && "text-muted-foreground"}`}>
+							<CardTitle
+								className={`text-2xl capitalize ${!hasUserData && "text-muted-foreground"}`}
+							>
 								{displayData.companyName}
 							</CardTitle>
 							<Badge variant="secondary" className="mt-2">
@@ -77,7 +91,9 @@ export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewC
 							</Badge>
 						</div>
 					</div>
-					<CardDescription className={`text-base ${!hasUserData && "text-muted-foreground/70"}`}>
+					<CardDescription
+						className={`text-base ${!hasUserData && "text-muted-foreground/70"}`}
+					>
 						{displayData.shortDescription}
 					</CardDescription>
 				</CardHeader>
@@ -89,14 +105,24 @@ export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewC
 								try {
 									return (
 										<span className="flex items-center gap-2">
-											<HugeiconsIcon icon={Link04Icon} size={16} color="currentColor" strokeWidth={1.5} />
+											<HugeiconsIcon
+												icon={Link04Icon}
+												size={16}
+												color="currentColor"
+												strokeWidth={1.5}
+											/>
 											{new URL(formValues.companyUrl).hostname}
 										</span>
 									);
 								} catch {
 									return (
 										<span className="flex items-center gap-2">
-											<HugeiconsIcon icon={Link04Icon} size={16} color="currentColor" strokeWidth={1.5} />
+											<HugeiconsIcon
+												icon={Link04Icon}
+												size={16}
+												color="currentColor"
+												strokeWidth={1.5}
+											/>
 											{formValues.companyUrl}
 										</span>
 									);
@@ -108,7 +134,12 @@ export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewC
 					{/* Location */}
 					<div className={formValues.companyUrl ? "pt-2" : ""}>
 						<div className="flex items-center gap-2 text-sm text-muted-foreground">
-							<HugeiconsIcon icon={Location04Icon} size={16} color="currentColor" strokeWidth={1.5} />
+							<HugeiconsIcon
+								icon={Location04Icon}
+								size={16}
+								color="currentColor"
+								strokeWidth={1.5}
+							/>
 							{displayData.futureLocation}
 						</div>
 					</div>
@@ -119,9 +150,9 @@ export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewC
 							{displayData.founders.length === 1 ? "Founder" : "Founders"}
 						</h4>
 						<div className="flex flex-col gap-1.5">
-							{displayData.founders.map((founder, index) => (
-								<div 
-									key={index} 
+							{displayData.founders.map((founder) => (
+								<div
+									key={founder}
 									className={`text-sm ${!hasUserData ? "text-muted-foreground/70" : "text-muted-foreground"}`}
 								>
 									{founder}
@@ -129,17 +160,12 @@ export function StartupPreviewCard({ formValues, userFullName }: StartupPreviewC
 							))}
 						</div>
 					</div>
-
-					{/* Hint for dummy data */}
-					{!hasUserData && (
-						<div className="pt-4 border-t">
-							<p className="text-xs text-muted-foreground/50 text-center italic">
-								Preview with dummy data. Start filling the form to see your startup details.
-							</p>
-						</div>
-					)}
 				</CardContent>
 			</Card>
+			{/* Hint for dummy data */}
+			{!hasUserData && (
+				<p className="text-sm text-muted-foreground/70 text-center">Preview</p>
+			)}
 		</div>
 	);
 }
