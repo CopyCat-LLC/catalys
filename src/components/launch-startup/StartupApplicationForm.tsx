@@ -1,8 +1,14 @@
-import { CheckCircle2, Loader2, Plus, X } from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Plus, X } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
 	Form,
 	FormControl,
@@ -47,8 +53,11 @@ const CATEGORIES = [
 	"Other",
 ];
 
+const MAX_COFOUNDERS = 4;
+
 export type CoFounder = {
 	id?: string;
+	name: string;
 	email: string;
 	role: string;
 	equityPercentage: number;
@@ -99,11 +108,84 @@ export function StartupApplicationForm({
 	error,
 	isSubmitting,
 }: StartupApplicationFormProps) {
+	const coFounders = form.watch("coFounders") || [];
+	const [expandedCoFounder, setExpandedCoFounder] = useState<number | null>(
+		coFounders.length > 0 ? 0 : null,
+	);
+
+	useEffect(() => {
+		if (coFounders.length === 0) {
+			setExpandedCoFounder(null);
+			return;
+		}
+
+		setExpandedCoFounder((prev) => {
+			if (prev === null) {
+				return 0;
+			}
+
+			if (prev >= coFounders.length) {
+				return coFounders.length - 1;
+			}
+
+			return prev;
+		});
+	}, [coFounders.length]);
+
+	const handleAddCoFounder = () => {
+		const currentCoFounders = form.getValues("coFounders") || [];
+
+		if (currentCoFounders.length >= MAX_COFOUNDERS) {
+			return;
+		}
+
+		const nextCoFounders = [
+			...currentCoFounders,
+			{
+				id: crypto.randomUUID(),
+				name: "",
+				email: "",
+				role: "",
+				equityPercentage: 0,
+			},
+		];
+
+		form.setValue("coFounders", nextCoFounders);
+		setExpandedCoFounder(nextCoFounders.length - 1);
+	};
+
+	const handleRemoveCoFounder = (index: number) => {
+		const currentCoFounders = form.getValues("coFounders") || [];
+		const nextCoFounders = currentCoFounders.filter((_, i) => i !== index);
+
+		form.setValue("coFounders", nextCoFounders);
+		setExpandedCoFounder((prev) => {
+			if (prev === null) {
+				return null;
+			}
+			if (prev === index) {
+				return null;
+			}
+			if (prev > index) {
+				return prev - 1;
+			}
+			return prev;
+		});
+	};
+
 	return (
-		<div className="w-1/2 flex flex-col items-center justify-center border-r border-border/50 h-screen bg-black z-10">
-			<div className="flex flex-col items-center justify-center mb-8">
+		<motion.div
+			layout
+			transition={{ duration: 0.3, ease: "easeInOut" }}
+			className="w-1/2 flex flex-col items-center justify-center border-r border-border/50 h-screen bg-black z-10"
+		>
+			<motion.div
+				layout
+				transition={{ duration: 0.3, ease: "easeInOut" }}
+				className="flex flex-col items-center justify-center mb-8"
+			>
 				<Logo />
-			</div>
+			</motion.div>
 			<motion.div
 				layout
 				transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -187,9 +269,7 @@ export function StartupApplicationForm({
 												name="shortDescription"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>
-															Short description (50 characters max) *
-														</FormLabel>
+														<FormLabel>Pitch startup in one sentence</FormLabel>
 														<FormControl>
 															<Input
 																placeholder="AI-powered recruiting platform"
@@ -606,121 +686,184 @@ export function StartupApplicationForm({
 														type="button"
 														variant="outline"
 														size="sm"
-														onClick={() => {
-															const currentCoFounders =
-																form.getValues("coFounders") || [];
-															form.setValue("coFounders", [
-																...currentCoFounders,
-																{
-																	id: crypto.randomUUID(),
-																	email: "",
-																	role: "",
-																	equityPercentage: 0,
-																},
-															]);
-														}}
+														onClick={handleAddCoFounder}
+														disabled={coFounders.length >= MAX_COFOUNDERS}
 													>
 														<Plus className="w-4 h-4 mr-1" />
 														Add Co-Founder
 													</Button>
 												</div>
+												{coFounders.length >= MAX_COFOUNDERS && (
+													<p className="text-xs text-muted-foreground">
+														Maximum of {MAX_COFOUNDERS} co-founders reached.
+													</p>
+												)}
 
-												{form.watch("coFounders")?.map((cofounder, index) => (
-													<div
-														key={cofounder.id || index}
-														className="space-y-3 p-3 border border-border/50 rounded-md relative"
-													>
-														<Button
-															type="button"
-															variant="ghost"
-															size="sm"
-															className="absolute top-2 right-2 h-6 w-6 p-0"
-															onClick={() => {
-																const currentCoFounders =
-																	form.getValues("coFounders");
-																form.setValue(
-																	"coFounders",
-																	currentCoFounders.filter(
-																		(_, i) => i !== index,
-																	),
-																);
-															}}
+												{coFounders.map((cofounder, index) => {
+													const isExpanded = expandedCoFounder === index;
+													const hasDetails =
+														cofounder.name ||
+														cofounder.email ||
+														cofounder.role ||
+														cofounder.equityPercentage;
+
+													return (
+														<Collapsible
+															key={cofounder.id || index}
+															open={isExpanded}
+															onOpenChange={(open) =>
+																setExpandedCoFounder(open ? index : null)
+															}
+															className="border border-border/50 rounded-md bg-background/20"
 														>
-															<X className="w-4 h-4" />
-														</Button>
-
-														<FormField
-															control={form.control}
-															name={`coFounders.${index}.email`}
-															render={({ field }) => (
-																<FormItem>
-																	<FormLabel className="text-xs">
-																		Email Address *
-																	</FormLabel>
-																	<FormControl>
-																		<Input
-																			placeholder="cofounder@example.com"
-																			className="h-9"
-																			{...field}
+															<div className="flex items-center gap-2 p-3">
+																<CollapsibleTrigger asChild>
+																	<button
+																		type="button"
+																		className="flex flex-1 items-center justify-between text-left gap-3"
+																	>
+																		<div className="flex-1">
+																			<p className="text-sm font-medium">
+																				{cofounder.name || "Add full name"}
+																			</p>
+																			{hasDetails && (
+																				<p className="text-xs text-muted-foreground">
+																					{cofounder.role || "Role not set"}
+																					{typeof cofounder.equityPercentage ===
+																						"number" &&
+																					cofounder.equityPercentage > 0
+																						? ` • ${cofounder.equityPercentage}% equity`
+																						: ""}
+																				</p>
+																			)}
+																		</div>
+																		<p className="text-xs text-muted-foreground">
+																			{cofounder.email || "Email not set"}
+																		</p>
+																		<ChevronDown
+																			className={`h-4 w-4 shrink-0 transition-transform ${
+																				isExpanded ? "rotate-180" : ""
+																			}`}
 																		/>
-																	</FormControl>
-																	<FormMessage />
-																</FormItem>
-															)}
-														/>
+																	</button>
+																</CollapsibleTrigger>
+																<Button
+																	type="button"
+																	variant="ghost"
+																	size="sm"
+																	className="h-7 w-7 p-0"
+																	onClick={(event) => {
+																		event.stopPropagation();
+																		handleRemoveCoFounder(index);
+																	}}
+																>
+																	<X className="w-4 h-4" />
+																</Button>
+															</div>
+															<CollapsibleContent
+																forceMount
+																className="border-t border-border/50 overflow-hidden"
+															>
+																<div className="space-y-3 p-3">
+																	<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+																		<FormField
+																			control={form.control}
+																			name={`coFounders.${index}.name`}
+																			render={({ field }) => (
+																				<FormItem>
+																					<FormLabel className="text-xs">
+																						Full name *
+																					</FormLabel>
+																					<FormControl>
+																						<Input
+																							placeholder="e.g., Jane Doe"
+																							className="h-9"
+																							{...field}
+																						/>
+																					</FormControl>
+																					<FormMessage />
+																				</FormItem>
+																			)}
+																		/>
 
-														<div className="grid grid-cols-2 gap-3">
-															<FormField
-																control={form.control}
-																name={`coFounders.${index}.role`}
-																render={({ field }) => (
-																	<FormItem>
-																		<FormLabel className="text-xs">
-																			Role *
-																		</FormLabel>
-																		<FormControl>
-																			<Input
-																				placeholder="e.g., Co-Founder & CTO"
-																				className="h-9"
-																				{...field}
-																			/>
-																		</FormControl>
-																		<FormMessage />
-																	</FormItem>
-																)}
-															/>
+																		<FormField
+																			control={form.control}
+																			name={`coFounders.${index}.email`}
+																			render={({ field }) => (
+																				<FormItem>
+																					<FormLabel className="text-xs">
+																						Email address *
+																					</FormLabel>
+																					<FormControl>
+																						<Input
+																							placeholder="cofounder@example.com"
+																							className="h-9"
+																							{...field}
+																						/>
+																					</FormControl>
+																					<FormMessage />
+																				</FormItem>
+																			)}
+																		/>
+																	</div>
 
-															<FormField
-																control={form.control}
-																name={`coFounders.${index}.equityPercentage`}
-																render={({ field }) => (
-																	<FormItem>
-																		<FormLabel className="text-xs">
-																			Equity % *
-																		</FormLabel>
-																		<FormControl>
-																			<Input
-																				type="number"
-																				placeholder="25"
-																				min="0"
-																				max="100"
-																				step="0.01"
-																				className="h-9"
-																				{...field}
-																				onChange={(e) =>
-																					field.onChange(Number(e.target.value))
-																				}
-																			/>
-																		</FormControl>
-																		<FormMessage />
-																	</FormItem>
-																)}
-															/>
-														</div>
-													</div>
-												))}
+																	<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+																		<FormField
+																			control={form.control}
+																			name={`coFounders.${index}.role`}
+																			render={({ field }) => (
+																				<FormItem>
+																					<FormLabel className="text-xs">
+																						Role *
+																					</FormLabel>
+																					<FormControl>
+																						<Input
+																							placeholder="e.g., Co-Founder & CTO"
+																							className="h-9"
+																							{...field}
+																						/>
+																					</FormControl>
+																					<FormMessage />
+																				</FormItem>
+																			)}
+																		/>
 
-												{form.watch("coFounders")?.length === 0 && (
+																		<FormField
+																			control={form.control}
+																			name={`coFounders.${index}.equityPercentage`}
+																			render={({ field }) => (
+																				<FormItem>
+																					<FormLabel className="text-xs">
+																						Equity % *
+																					</FormLabel>
+																					<FormControl>
+																						<Input
+																							type="number"
+																							placeholder="25"
+																							min="0"
+																							max="100"
+																							step="0.01"
+																							className="h-9"
+																							{...field}
+																							onChange={(e) =>
+																								field.onChange(
+																									Number(e.target.value),
+																								)
+																							}
+																						/>
+																					</FormControl>
+																					<FormMessage />
+																				</FormItem>
+																			)}
+																		/>
+																	</div>
+																</div>
+															</CollapsibleContent>
+														</Collapsible>
+													);
+												})}
+
+												{coFounders.length === 0 && (
 													<p className="text-xs text-muted-foreground text-center py-4">
 														No co-founders added yet. Click "Add Co-Founder" to
 														invite team members.
@@ -844,6 +987,6 @@ export function StartupApplicationForm({
 					</Card>
 				</Card>
 			</motion.div>
-		</div>
+		</motion.div>
 	);
 }

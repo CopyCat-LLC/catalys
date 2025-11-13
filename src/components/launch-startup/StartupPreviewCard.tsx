@@ -54,7 +54,10 @@ export function StartupPreviewCard({
 		category: formValues.category || DUMMY_DATA.category,
 		futureLocation: formValues.futureLocation || DUMMY_DATA.futureLocation,
 		founders: formValues.coFounders?.length
-			? [userFullName || "You", ...formValues.coFounders.map((cf) => cf.email)]
+			? [
+					userFullName || "You",
+					...formValues.coFounders.map((cf) => cf.name || cf.email),
+				]
 			: [userFullName || DUMMY_DATA.founders[0]],
 	};
 
@@ -149,14 +152,15 @@ export function StartupPreviewCard({
 						<h4 className="text-sm font-semibold mb-2">
 							{displayData.founders.length === 1 ? "Founder" : "Founders"}
 						</h4>
-						<div className="flex flex-col gap-1.5">
+						<div className="flex flex-wrap items-center gap-2">
 							{displayData.founders.map((founder) => (
-								<div
+								<Badge
 									key={founder}
-									className={`text-sm ${!hasUserData ? "text-muted-foreground/70" : "text-muted-foreground"}`}
+									variant="secondary"
+									className={`${!hasUserData ? "text-muted-foreground/70" : "text-muted-foreground"}`}
 								>
 									{founder}
-								</div>
+								</Badge>
 							))}
 						</div>
 					</div>

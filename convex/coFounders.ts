@@ -8,6 +8,7 @@ export const createBatch = mutation({
     organizationId: v.string(),
     coFounders: v.array(
       v.object({
+        name: v.optional(v.string()),
         email: v.string(),
         role: v.string(),
         equityPercentage: v.number(),
@@ -23,6 +24,7 @@ export const createBatch = mutation({
       const invitationId = await ctx.db.insert('coFounders', {
         startupId: args.startupId,
         organizationId: args.organizationId,
+        name: coFounder.name,
         email: coFounder.email,
         role: coFounder.role,
         equityPercentage: coFounder.equityPercentage,

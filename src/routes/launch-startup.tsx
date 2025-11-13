@@ -69,6 +69,7 @@ const onboardingSchema = z.object({
 	legalEntities: z.string().optional(),
 	coFounders: z.array(
 		z.object({
+			name: z.string().min(2, "Full name is required"),
 			email: z.string().email("Please enter a valid email"),
 			role: z.string().min(1, "Role is required"),
 			equityPercentage: z
@@ -281,7 +282,7 @@ function OnboardingPage() {
 
 	// Watch form values for preview
 	const formValues = form.watch();
-	
+
 	// Get user's full name from session
 	const userFullName = session.data?.user?.name || "Your Name";
 
