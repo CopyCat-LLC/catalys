@@ -4,46 +4,46 @@ import { mutation, query } from './_generated/server'
 // Create a new startup with organization
 export const create = mutation({
   args: {
+    // Company info
     name: v.string(),
     shortDescription: v.string(),
     description: v.string(),
     website: v.optional(v.string()),
-    industry: v.string(),
-    stage: v.union(
-      v.literal('IDEA'),
-      v.literal('MVP'),
-      v.literal('LAUNCHED'),
-      v.literal('GROWTH'),
-      v.literal('SCALING')
+    demoVideo: v.optional(v.string()),
+    futureLocation: v.string(),
+    locationExplanation: v.string(),
+    
+    // Progress
+    howFarAlong: v.string(),
+    workingTime: v.string(),
+    techStack: v.string(),
+    peopleUsing: v.boolean(),
+    versionTimeline: v.optional(v.string()),
+    hasRevenue: v.boolean(),
+    appliedBefore: v.union(
+      v.literal('first_time'),
+      v.literal('same_idea'),
+      v.literal('different_idea')
     ),
-    foundedDate: v.optional(v.string()),
-    location: v.optional(v.string()),
-    problemSolving: v.string(),
-    targetMarket: v.string(),
-    traction: v.optional(v.string()),
-    fundingStage: v.optional(
-      v.union(
-        v.literal('PRE_SEED'),
-        v.literal('SEED'),
-        v.literal('SERIES_A'),
-        v.literal('SERIES_B'),
-        v.literal('SERIES_C_PLUS'),
-        v.literal('BOOTSTRAPPED')
-      )
-    ),
-    teamSize: v.optional(v.number()),
+    previousApplicationNotes: v.optional(v.string()),
+    incubatorInfo: v.optional(v.string()),
+    
+    // Idea
+    whyThisIdea: v.string(),
+    customerNeed: v.string(),
+    competitors: v.string(),
+    monetization: v.string(),
+    category: v.string(),
+    
+    // Equity
+    hasLegalEntity: v.boolean(),
+    legalEntities: v.optional(v.string()),
+    equityBreakdown: v.optional(v.string()),
+    investmentTaken: v.boolean(),
+    currentlyFundraising: v.boolean(),
+    
     organizationId: v.string(),
     userId: v.string(),
-    coFounders: v.optional(
-      v.array(
-        v.object({
-          email: v.string(),
-          name: v.optional(v.string()),
-          role: v.string(),
-          equityPercentage: v.number(),
-        })
-      )
-    ),
   },
   handler: async (ctx, args) => {
     // Generate slug from name
@@ -64,7 +64,7 @@ export const create = mutation({
 
     const now = Date.now()
 
-    // Create the startup
+    // Create the startup with all new fields
     const startupId = await ctx.db.insert('startups', {
       organizationId: args.organizationId,
       name: args.name,
@@ -72,36 +72,32 @@ export const create = mutation({
       shortDescription: args.shortDescription,
       description: args.description,
       website: args.website,
-      industry: args.industry,
-      stage: args.stage,
-      foundedDate: args.foundedDate,
-      location: args.location,
-      problemSolving: args.problemSolving,
-      targetMarket: args.targetMarket,
-      traction: args.traction,
-      fundingStage: args.fundingStage,
-      teamSize: args.teamSize,
+      demoVideo: args.demoVideo,
+      futureLocation: args.futureLocation,
+      locationExplanation: args.locationExplanation,
+      howFarAlong: args.howFarAlong,
+      workingTime: args.workingTime,
+      techStack: args.techStack,
+      peopleUsing: args.peopleUsing,
+      versionTimeline: args.versionTimeline,
+      hasRevenue: args.hasRevenue,
+      appliedBefore: args.appliedBefore,
+      previousApplicationNotes: args.previousApplicationNotes,
+      incubatorInfo: args.incubatorInfo,
+      whyThisIdea: args.whyThisIdea,
+      customerNeed: args.customerNeed,
+      competitors: args.competitors,
+      monetization: args.monetization,
+      category: args.category,
+      hasLegalEntity: args.hasLegalEntity,
+      legalEntities: args.legalEntities,
+      equityBreakdown: args.equityBreakdown,
+      investmentTaken: args.investmentTaken,
+      currentlyFundraising: args.currentlyFundraising,
       createdBy: args.userId,
       createdAt: now,
       updatedAt: now,
     })
-
-    // Add co-founders if provided
-    if (args.coFounders && args.coFounders.length > 0) {
-      for (const coFounder of args.coFounders) {
-        await ctx.db.insert('coFounders', {
-          startupId,
-          organizationId: args.organizationId,
-          email: coFounder.email,
-          name: coFounder.name,
-          role: coFounder.role,
-          equityPercentage: coFounder.equityPercentage,
-          invitationStatus: 'PENDING',
-          invitedBy: args.userId,
-          invitedAt: now,
-        })
-      }
-    }
 
     // Mark user onboarding as completed
     const userProfile = await ctx.db
@@ -162,19 +158,6 @@ export const getBySlug = query({
       .first()
 
     return startup
-  },
-})
-
-// Get co-founders for a startup
-export const getCoFounders = query({
-  args: { startupId: v.id('startups') },
-  handler: async (ctx, args) => {
-    const coFounders = await ctx.db
-      .query('coFounders')
-      .withIndex('by_startupId', (q) => q.eq('startupId', args.startupId))
-      .collect()
-
-    return coFounders
   },
 })
 

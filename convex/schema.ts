@@ -12,31 +12,42 @@ export default defineSchema({
     organizationId: v.string(), // Better Auth organization ID
     name: v.string(),
     slug: v.string(),
-    shortDescription: v.string(), // One-liner pitch
-    description: v.string(), // Detailed description
+    shortDescription: v.string(), // 50 characters max
+    description: v.string(), // What is your company going to make?
     website: v.optional(v.string()),
-    industry: v.string(),
-    stage: v.union(
-      v.literal('IDEA'),
-      v.literal('MVP'),
-      v.literal('LAUNCHED'),
-      v.literal('GROWTH'),
-      v.literal('SCALING')
+    demoVideo: v.optional(v.string()),
+    futureLocation: v.string(),
+    locationExplanation: v.string(),
+    
+    // Progress
+    howFarAlong: v.string(),
+    workingTime: v.string(),
+    techStack: v.string(),
+    peopleUsing: v.boolean(),
+    versionTimeline: v.optional(v.string()),
+    hasRevenue: v.boolean(),
+    appliedBefore: v.union(
+      v.literal('first_time'),
+      v.literal('same_idea'),
+      v.literal('different_idea')
     ),
-    foundedDate: v.optional(v.string()),
-    location: v.optional(v.string()),
-    problemSolving: v.string(), // What problem are you solving?
-    targetMarket: v.string(), // Who is your target customer?
-    traction: v.optional(v.string()), // Current metrics/traction
-    fundingStage: v.optional(v.union(
-      v.literal('PRE_SEED'),
-      v.literal('SEED'),
-      v.literal('SERIES_A'),
-      v.literal('SERIES_B'),
-      v.literal('SERIES_C_PLUS'),
-      v.literal('BOOTSTRAPPED')
-    )),
-    teamSize: v.optional(v.number()),
+    previousApplicationNotes: v.optional(v.string()),
+    incubatorInfo: v.optional(v.string()),
+    
+    // Idea
+    whyThisIdea: v.string(),
+    customerNeed: v.string(),
+    competitors: v.string(),
+    monetization: v.string(),
+    category: v.string(),
+    
+    // Equity
+    hasLegalEntity: v.boolean(),
+    legalEntities: v.optional(v.string()),
+    equityBreakdown: v.optional(v.string()),
+    investmentTaken: v.boolean(),
+    currentlyFundraising: v.boolean(),
+    
     createdBy: v.string(), // User ID of creator
     createdAt: v.number(),
     updatedAt: v.number(),
