@@ -185,7 +185,7 @@ export function Workspace() {
 						sideOffset={4}
 					>
 						<DropdownMenuLabel className="text-muted-foreground text-xs">
-							Workspaces
+							Startups
 						</DropdownMenuLabel>
 						{organizations.map(
 							(org: { id: string; name: string }, index: number) => {

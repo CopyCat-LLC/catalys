@@ -21,7 +21,7 @@ import { authClient } from "@/lib/auth-client";
 import ConvexProvider from "../integrations/convex/provider";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
-import '@fontsource/inter';
+import "@fontsource/inter";
 
 interface MyRouterContext {
 	queryClient: QueryClient;

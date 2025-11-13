@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
-import { Progress } from "@/components/ui/progress";
 import {
 	Select,
 	SelectContent,
@@ -168,8 +167,6 @@ function OnboardingPage() {
 		name: "coFounders",
 	});
 
-	const progress = (currentStep / STEPS.length) * 100;
-
 	const validateStep = async (step: number) => {
 		const fieldsToValidate: (keyof OnboardingFormValues)[] = [];
 
@@ -180,7 +177,6 @@ function OnboardingPage() {
 					"shortDescription",
 					"industry",
 					"location",
-					"website",
 				);
 				break;
 			case 2:
@@ -190,6 +186,7 @@ function OnboardingPage() {
 					"targetMarket",
 					"stage",
 					"foundedDate",
+					"website",
 				);
 				break;
 			case 3:
@@ -320,595 +317,746 @@ function OnboardingPage() {
 		});
 	};
 
+	// Watch form values for preview
+	const formValues = form.watch();
+
 	return (
-		<div className="min-h-screen bg-linear-to-br from-background to-secondary/20 py-8 px-4">
-			<div className="max-w-4xl mx-auto">
-				<div className="flex justify-center mb-8">
+		<div className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
+			<div className="w-1/2 flex flex-col items-center justify-center border-r border-border/50 h-screen">
+				<div className="flex flex-col items-center justify-center mb-8">
 					<Logo />
 				</div>
-
-				{/* Progress Bar */}
-				<div className="mb-8">
-					<div className="flex items-center justify-between mb-4">
-						<div>
-							<h2 className="text-2xl font-bold">Create Your Startup</h2>
-							<p className="text-muted-foreground">
-								{STEPS[currentStep - 1].description}
-							</p>
-						</div>
-						<Badge variant="secondary" className="text-sm">
-							Step {currentStep} of {STEPS.length}
-						</Badge>
-					</div>
-					<Progress value={progress} className="h-2" />
-				</div>
-
-				{/* Steps Indicator */}
-				<div className="grid grid-cols-4 gap-4 mb-8">
-					{STEPS.map((step) => (
-						<div
-							key={step.id}
-							className={`flex items-center gap-2 ${
-								step.id === currentStep
-									? "text-primary"
-									: step.id < currentStep
-										? "text-green-600"
-										: "text-muted-foreground"
-							}`}
-						>
-							{step.id < currentStep ? (
-								<CheckCircle2 className="w-5 h-5" />
-							) : (
+				<div className="bg-zinc-800 rounded-xl p-0.5 max-w-xl w-full">
+					<div className="flex flex-col w-full p-6 gap-6">
+						<h2 className="text-base font-semibold">Create Your Startup</h2>
+						{/* Steps Indicator */}
+						<div className="grid grid-cols-4 gap-4">
+							{STEPS.map((step) => (
 								<div
-									className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${
+									key={step.id}
+									className={`flex items-center gap-2 ${
 										step.id === currentStep
-											? "border-primary bg-primary text-primary-foreground"
-											: "border-muted-foreground"
+											? "text-primary"
+											: step.id < currentStep
+												? "text-green-600"
+												: "text-muted-foreground"
 									}`}
 								>
-									{step.id}
+									{step.id < currentStep ? (
+										<CheckCircle2 className="w-5 h-5" />
+									) : (
+										<div
+											className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${
+												step.id === currentStep
+													? "border-primary bg-primary text-primary-foreground"
+													: "border-muted-foreground"
+											}`}
+										>
+											{step.id}
+										</div>
+									)}
+									<span className="text-sm font-medium hidden sm:inline">
+										{step.title}
+									</span>
 								</div>
-							)}
-							<span className="text-sm font-medium hidden sm:inline">
-								{step.title}
-							</span>
+							))}
 						</div>
-					))}
-				</div>
-
-				<Card className="border-border/50 shadow-xl">
-					<CardHeader>
-						<CardTitle>{STEPS[currentStep - 1].title}</CardTitle>
-						<CardDescription>
-							{STEPS[currentStep - 1].description}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(onSubmit)}
-								className="space-y-6"
-								onKeyDown={(e) => {
-									// Prevent Enter key from submitting form unless on last step
-									if (e.key === "Enter" && currentStep < STEPS.length) {
-										e.preventDefault();
-									}
-								}}
-							>
-								{/* Step 1: Basic Info */}
-								{currentStep === 1 && (
-									<div className="space-y-4">
-										<FormField
-											control={form.control}
-											name="name"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Startup Name *</FormLabel>
-													<FormControl>
-														<Input
-															placeholder="Acme Inc."
-															className="h-11"
-															{...field}
-														/>
-													</FormControl>
-													<FormDescription>
-														The official name of your startup
-													</FormDescription>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="shortDescription"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>One-liner Pitch *</FormLabel>
-													<FormControl>
-														<Input
-															placeholder="AI-powered platform that helps teams collaborate better"
-															className="h-11"
-															{...field}
-														/>
-													</FormControl>
-													<FormDescription>
-														A short, compelling description (max 100 characters)
-													</FormDescription>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="industry"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Industry *</FormLabel>
-													<Select
-														onValueChange={field.onChange}
-														defaultValue={field.value}
-													>
-														<FormControl>
-															<SelectTrigger className="h-11">
-																<SelectValue placeholder="Select an industry" />
-															</SelectTrigger>
-														</FormControl>
-														<SelectContent>
-															{INDUSTRIES.map((industry) => (
-																<SelectItem key={industry} value={industry}>
-																	{industry}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<FormField
-												control={form.control}
-												name="location"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Location</FormLabel>
-														<FormControl>
-															<Input
-																placeholder="San Francisco, CA"
-																className="h-11"
-																{...field}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="website"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Website</FormLabel>
-														<FormControl>
-															<Input
-																placeholder="https://example.com"
-																className="h-11"
-																{...field}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-										</div>
-									</div>
-								)}
-
-								{/* Step 2: Details */}
-								{currentStep === 2 && (
-									<div className="space-y-4">
-										<FormField
-											control={form.control}
-											name="description"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Detailed Description *</FormLabel>
-													<FormControl>
-														<Textarea
-															placeholder="Tell us more about your startup, your vision, and what makes you unique..."
-															className="min-h-32 resize-none"
-															{...field}
-														/>
-													</FormControl>
-													<FormDescription>
-														Provide a comprehensive overview of your startup
-													</FormDescription>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="problemSolving"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>What problem are you solving? *</FormLabel>
-													<FormControl>
-														<Textarea
-															placeholder="Describe the problem your startup addresses..."
-															className="min-h-24 resize-none"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="targetMarket"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Who is your target customer? *</FormLabel>
-													<FormControl>
-														<Textarea
-															placeholder="Describe your ideal customer or target market..."
-															className="min-h-24 resize-none"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<FormField
-												control={form.control}
-												name="stage"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Current Stage *</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="h-11">
-																	<SelectValue placeholder="Select stage" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																<SelectItem value="IDEA">Idea</SelectItem>
-																<SelectItem value="MVP">MVP</SelectItem>
-																<SelectItem value="LAUNCHED">
-																	Launched
-																</SelectItem>
-																<SelectItem value="GROWTH">Growth</SelectItem>
-																<SelectItem value="SCALING">Scaling</SelectItem>
-															</SelectContent>
-														</Select>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="foundedDate"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Founded Date</FormLabel>
-														<FormControl>
-															<Input type="month" className="h-11" {...field} />
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-										</div>
-									</div>
-								)}
-
-								{/* Step 3: Traction & Funding */}
-								{currentStep === 3 && (
-									<div className="space-y-4">
-										<FormField
-											control={form.control}
-											name="traction"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Traction & Metrics (Optional)</FormLabel>
-													<FormControl>
-														<Textarea
-															placeholder="Share key metrics: users, revenue, growth rate, partnerships, etc."
-															className="min-h-32 resize-none"
-															{...field}
-														/>
-													</FormControl>
-													<FormDescription>
-														What progress have you made so far?
-													</FormDescription>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<FormField
-												control={form.control}
-												name="fundingStage"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Funding Stage</FormLabel>
-														<Select
-															onValueChange={field.onChange}
-															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="h-11">
-																	<SelectValue placeholder="Select funding stage" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																<SelectItem value="PRE_SEED">
-																	Pre-Seed
-																</SelectItem>
-																<SelectItem value="SEED">Seed</SelectItem>
-																<SelectItem value="SERIES_A">
-																	Series A
-																</SelectItem>
-																<SelectItem value="SERIES_B">
-																	Series B
-																</SelectItem>
-																<SelectItem value="SERIES_C_PLUS">
-																	Series C+
-																</SelectItem>
-																<SelectItem value="BOOTSTRAPPED">
-																	Bootstrapped
-																</SelectItem>
-															</SelectContent>
-														</Select>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="teamSize"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Team Size</FormLabel>
-														<FormControl>
-															<Input
-																type="number"
-																min="1"
-																placeholder="5"
-																className="h-11"
-																{...field}
-																onChange={(e) =>
-																	field.onChange(
-																		Number.parseInt(e.target.value),
-																	)
-																}
-															/>
-														</FormControl>
-														<FormDescription>
-															Total number of team members
-														</FormDescription>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-										</div>
-									</div>
-								)}
-
-								{/* Step 4: Co-founders */}
-								{currentStep === 4 && (
-									<div className="space-y-4">
-										<div className="flex items-center justify-between">
-											<div>
-												<h3 className="text-lg font-medium">
-													Invite Co-founders
-												</h3>
-												<p className="text-sm text-muted-foreground">
-													Add your co-founders with their equity split
-												</p>
-											</div>
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												onClick={addCoFounder}
-											>
-												<PlusCircle className="w-4 h-4 mr-2" />
-												Add Co-founder
-											</Button>
-										</div>
-
-										{fields.length === 0 ? (
-											<Card className="border-dashed">
-												<CardContent className="py-8 text-center">
-													<p className="text-muted-foreground mb-4">
-														No co-founders added yet
-													</p>
-													<Button
-														type="button"
-														variant="outline"
-														onClick={addCoFounder}
-													>
-														<PlusCircle className="w-4 h-4 mr-2" />
-														Add Your First Co-founder
-													</Button>
-												</CardContent>
-											</Card>
-										) : (
+					</div>
+					<Card className="bg-zinc-900 border-none rounded-xl px-6 pb-0 pt-6">
+						<Card className="bg-transparent border-none">
+							<CardContent className="p-0">
+								<Form {...form}>
+									<form
+										onSubmit={form.handleSubmit(onSubmit)}
+										className="space-y-6"
+										onKeyDown={(e) => {
+											// Prevent Enter key from submitting form unless on last step
+											if (e.key === "Enter" && currentStep < STEPS.length) {
+												e.preventDefault();
+											}
+										}}
+									>
+										{/* Step 1: Basic Info */}
+										{currentStep === 1 && (
 											<div className="space-y-4">
-												{fields.map((field, index) => (
-													<Card key={field.id}>
-														<CardContent className="pt-6">
-															<div className="flex items-start justify-between mb-4">
-																<h4 className="font-medium">
-																	Co-founder {index + 1}
-																</h4>
-																<Button
-																	type="button"
-																	variant="ghost"
-																	size="sm"
-																	onClick={() => remove(index)}
-																>
-																	<Trash2 className="w-4 h-4" />
-																</Button>
-															</div>
+												<FormField
+													control={form.control}
+													name="name"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Startup Name *</FormLabel>
+															<FormControl>
+																<Input
+																	placeholder="Acme Inc."
+																	className="h-11"
+																	{...field}
+																/>
+															</FormControl>
+															<FormDescription>
+																The official name of your startup
+															</FormDescription>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-															<div className="grid gap-4">
-																<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-																	<FormField
-																		control={form.control}
-																		name={`coFounders.${index}.name`}
-																		render={({ field }) => (
-																			<FormItem>
-																				<FormLabel>Name</FormLabel>
-																				<FormControl>
-																					<Input
-																						placeholder="John Doe"
-																						{...field}
-																					/>
-																				</FormControl>
-																				<FormMessage />
-																			</FormItem>
-																		)}
-																	/>
+												<FormField
+													control={form.control}
+													name="shortDescription"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>One-liner Pitch *</FormLabel>
+															<FormControl>
+																<Input
+																	placeholder="AI-powered platform that helps teams collaborate better"
+																	className="h-11"
+																	{...field}
+																/>
+															</FormControl>
+															<FormDescription>
+																A short, compelling description (max 100
+																characters)
+															</FormDescription>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-																	<FormField
-																		control={form.control}
-																		name={`coFounders.${index}.email`}
-																		render={({ field }) => (
-																			<FormItem>
-																				<FormLabel>Email *</FormLabel>
-																				<FormControl>
-																					<Input
-																						type="email"
-																						placeholder="john@example.com"
-																						{...field}
-																					/>
-																				</FormControl>
-																				<FormMessage />
-																			</FormItem>
-																		)}
-																	/>
-																</div>
+												<FormField
+													control={form.control}
+													name="industry"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Industry *</FormLabel>
+															<Select
+																onValueChange={field.onChange}
+																defaultValue={field.value}
+															>
+																<FormControl>
+																	<SelectTrigger className="h-11">
+																		<SelectValue placeholder="Select an industry" />
+																	</SelectTrigger>
+																</FormControl>
+																<SelectContent>
+																	{INDUSTRIES.map((industry) => (
+																		<SelectItem key={industry} value={industry}>
+																			{industry}
+																		</SelectItem>
+																	))}
+																</SelectContent>
+															</Select>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-																<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-																	<FormField
-																		control={form.control}
-																		name={`coFounders.${index}.role`}
-																		render={({ field }) => (
-																			<FormItem>
-																				<FormLabel>Role *</FormLabel>
-																				<FormControl>
-																					<Input
-																						placeholder="Co-Founder & CTO"
-																						{...field}
-																					/>
-																				</FormControl>
-																				<FormMessage />
-																			</FormItem>
-																		)}
-																	/>
-
-																	<FormField
-																		control={form.control}
-																		name={`coFounders.${index}.equityPercentage`}
-																		render={({ field }) => (
-																			<FormItem>
-																				<FormLabel>Equity % *</FormLabel>
-																				<FormControl>
-																					<Input
-																						type="number"
-																						min="0"
-																						max="100"
-																						step="0.1"
-																						placeholder="25"
-																						{...field}
-																						onChange={(e) =>
-																							field.onChange(
-																								Number.parseFloat(
-																									e.target.value,
-																								),
-																							)
-																						}
-																					/>
-																				</FormControl>
-																				<FormMessage />
-																			</FormItem>
-																		)}
-																	/>
-																</div>
-															</div>
-														</CardContent>
-													</Card>
-												))}
+												<FormField
+													control={form.control}
+													name="location"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Location</FormLabel>
+															<FormControl>
+																<Input
+																	placeholder="San Francisco, CA"
+																	className="h-11"
+																	{...field}
+																/>
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 											</div>
 										)}
 
-										<Card className="bg-muted/50">
-											<CardContent className="pt-4">
-												<p className="text-sm text-muted-foreground">
-													<strong>Note:</strong> Invitations will be sent to
-													co-founders after you complete onboarding. They'll be
-													able to join your organization and access the
-													dashboard.
-												</p>
-											</CardContent>
-										</Card>
-									</div>
-								)}
+										{/* Step 2: Details */}
+										{currentStep === 2 && (
+											<div className="space-y-4">
+												<FormField
+													control={form.control}
+													name="description"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Detailed Description *</FormLabel>
+															<FormControl>
+																<Textarea
+																	placeholder="Tell us more about your startup, your vision, and what makes you unique..."
+																	className="min-h-32 resize-none"
+																	{...field}
+																/>
+															</FormControl>
+															<FormDescription>
+																Provide a comprehensive overview of your startup
+															</FormDescription>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-								{error && (
-									<div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
-										{error}
-									</div>
-								)}
+												<FormField
+													control={form.control}
+													name="problemSolving"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>
+																What problem are you solving? *
+															</FormLabel>
+															<FormControl>
+																<Textarea
+																	placeholder="Describe the problem your startup addresses..."
+																	className="min-h-24 resize-none"
+																	{...field}
+																/>
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-								{/* Navigation Buttons */}
-								<div className="flex items-center justify-between pt-6 border-t">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={prevStep}
-										disabled={currentStep === 1 || isSubmitting}
-									>
-										Previous
-									</Button>
+												<FormField
+													control={form.control}
+													name="targetMarket"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>
+																Who is your target customer? *
+															</FormLabel>
+															<FormControl>
+																<Textarea
+																	placeholder="Describe your ideal customer or target market..."
+																	className="min-h-24 resize-none"
+																	{...field}
+																/>
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
 
-									{currentStep < STEPS.length ? (
-										<Button type="button" onClick={nextStep}>
-											Next
-										</Button>
-									) : (
-										<Button type="submit" disabled={isSubmitting}>
-											{isSubmitting ? (
-												<>
-													<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-													Creating...
-												</>
+												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+													<FormField
+														control={form.control}
+														name="stage"
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel>Current Stage *</FormLabel>
+																<Select
+																	onValueChange={field.onChange}
+																	defaultValue={field.value}
+																>
+																	<FormControl>
+																		<SelectTrigger className="h-11">
+																			<SelectValue placeholder="Select stage" />
+																		</SelectTrigger>
+																	</FormControl>
+																	<SelectContent>
+																		<SelectItem value="IDEA">Idea</SelectItem>
+																		<SelectItem value="MVP">MVP</SelectItem>
+																		<SelectItem value="LAUNCHED">
+																			Launched
+																		</SelectItem>
+																		<SelectItem value="GROWTH">
+																			Growth
+																		</SelectItem>
+																		<SelectItem value="SCALING">
+																			Scaling
+																		</SelectItem>
+																	</SelectContent>
+																</Select>
+																<FormMessage />
+															</FormItem>
+														)}
+													/>
+
+													<FormField
+														control={form.control}
+														name="foundedDate"
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel>Founded Date</FormLabel>
+																<FormControl>
+																	<Input
+																		type="month"
+																		className="h-11"
+																		{...field}
+																	/>
+																</FormControl>
+																<FormMessage />
+															</FormItem>
+														)}
+													/>
+												</div>
+
+												<FormField
+													control={form.control}
+													name="website"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Website</FormLabel>
+															<FormControl>
+																<Input
+																	placeholder="https://example.com"
+																	className="h-11"
+																	{...field}
+																/>
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
+											</div>
+										)}
+
+										{/* Step 3: Traction & Funding */}
+										{currentStep === 3 && (
+											<div className="space-y-4">
+												<FormField
+													control={form.control}
+													name="traction"
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>
+																Traction & Metrics (Optional)
+															</FormLabel>
+															<FormControl>
+																<Textarea
+																	placeholder="Share key metrics: users, revenue, growth rate, partnerships, etc."
+																	className="min-h-32 resize-none"
+																	{...field}
+																/>
+															</FormControl>
+															<FormDescription>
+																What progress have you made so far?
+															</FormDescription>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
+
+												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+													<FormField
+														control={form.control}
+														name="fundingStage"
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel>Funding Stage</FormLabel>
+																<Select
+																	onValueChange={field.onChange}
+																	defaultValue={field.value}
+																>
+																	<FormControl>
+																		<SelectTrigger className="h-11">
+																			<SelectValue placeholder="Select funding stage" />
+																		</SelectTrigger>
+																	</FormControl>
+																	<SelectContent>
+																		<SelectItem value="PRE_SEED">
+																			Pre-Seed
+																		</SelectItem>
+																		<SelectItem value="SEED">Seed</SelectItem>
+																		<SelectItem value="SERIES_A">
+																			Series A
+																		</SelectItem>
+																		<SelectItem value="SERIES_B">
+																			Series B
+																		</SelectItem>
+																		<SelectItem value="SERIES_C_PLUS">
+																			Series C+
+																		</SelectItem>
+																		<SelectItem value="BOOTSTRAPPED">
+																			Bootstrapped
+																		</SelectItem>
+																	</SelectContent>
+																</Select>
+																<FormMessage />
+															</FormItem>
+														)}
+													/>
+
+													<FormField
+														control={form.control}
+														name="teamSize"
+														render={({ field }) => (
+															<FormItem>
+																<FormLabel>Team Size</FormLabel>
+																<FormControl>
+																	<Input
+																		type="number"
+																		min="1"
+																		placeholder="5"
+																		className="h-11"
+																		{...field}
+																		onChange={(e) =>
+																			field.onChange(
+																				Number.parseInt(e.target.value),
+																			)
+																		}
+																	/>
+																</FormControl>
+																<FormDescription>
+																	Total number of team members
+																</FormDescription>
+																<FormMessage />
+															</FormItem>
+														)}
+													/>
+												</div>
+											</div>
+										)}
+
+										{/* Step 4: Co-founders */}
+										{currentStep === 4 && (
+											<div className="space-y-4">
+												<div className="flex items-center justify-between">
+													<div>
+														<h3 className="text-lg font-medium">
+															Invite Co-founders
+														</h3>
+														<p className="text-sm text-muted-foreground">
+															Add your co-founders with their equity split
+														</p>
+													</div>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={addCoFounder}
+													>
+														<PlusCircle className="w-4 h-4 mr-2" />
+														Add Co-founder
+													</Button>
+												</div>
+
+												{fields.length === 0 ? (
+													<Card className="border-dashed">
+														<CardContent className="py-8 text-center">
+															<p className="text-muted-foreground mb-4">
+																No co-founders added yet
+															</p>
+															<Button
+																type="button"
+																variant="outline"
+																onClick={addCoFounder}
+															>
+																<PlusCircle className="w-4 h-4 mr-2" />
+																Add Your First Co-founder
+															</Button>
+														</CardContent>
+													</Card>
+												) : (
+													<div className="space-y-4">
+														{fields.map((field, index) => (
+															<Card key={field.id}>
+																<CardContent className="pt-6">
+																	<div className="flex items-start justify-between mb-4">
+																		<h4 className="font-medium">
+																			Co-founder {index + 1}
+																		</h4>
+																		<Button
+																			type="button"
+																			variant="ghost"
+																			size="sm"
+																			onClick={() => remove(index)}
+																		>
+																			<Trash2 className="w-4 h-4" />
+																		</Button>
+																	</div>
+
+																	<div className="grid gap-4">
+																		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+																			<FormField
+																				control={form.control}
+																				name={`coFounders.${index}.name`}
+																				render={({ field }) => (
+																					<FormItem>
+																						<FormLabel>Name</FormLabel>
+																						<FormControl>
+																							<Input
+																								placeholder="John Doe"
+																								{...field}
+																							/>
+																						</FormControl>
+																						<FormMessage />
+																					</FormItem>
+																				)}
+																			/>
+
+																			<FormField
+																				control={form.control}
+																				name={`coFounders.${index}.email`}
+																				render={({ field }) => (
+																					<FormItem>
+																						<FormLabel>Email *</FormLabel>
+																						<FormControl>
+																							<Input
+																								type="email"
+																								placeholder="john@example.com"
+																								{...field}
+																							/>
+																						</FormControl>
+																						<FormMessage />
+																					</FormItem>
+																				)}
+																			/>
+																		</div>
+
+																		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+																			<FormField
+																				control={form.control}
+																				name={`coFounders.${index}.role`}
+																				render={({ field }) => (
+																					<FormItem>
+																						<FormLabel>Role *</FormLabel>
+																						<FormControl>
+																							<Input
+																								placeholder="Co-Founder & CTO"
+																								{...field}
+																							/>
+																						</FormControl>
+																						<FormMessage />
+																					</FormItem>
+																				)}
+																			/>
+
+																			<FormField
+																				control={form.control}
+																				name={`coFounders.${index}.equityPercentage`}
+																				render={({ field }) => (
+																					<FormItem>
+																						<FormLabel>Equity % *</FormLabel>
+																						<FormControl>
+																							<Input
+																								type="number"
+																								min="0"
+																								max="100"
+																								step="0.1"
+																								placeholder="25"
+																								{...field}
+																								onChange={(e) =>
+																									field.onChange(
+																										Number.parseFloat(
+																											e.target.value,
+																										),
+																									)
+																								}
+																							/>
+																						</FormControl>
+																						<FormMessage />
+																					</FormItem>
+																				)}
+																			/>
+																		</div>
+																	</div>
+																</CardContent>
+															</Card>
+														))}
+													</div>
+												)}
+
+												<Card className="bg-muted/50">
+													<CardContent className="pt-4">
+														<p className="text-sm text-muted-foreground">
+															<strong>Note:</strong> Invitations will be sent to
+															co-founders after you complete onboarding. They'll
+															be able to join your organization and access the
+															dashboard.
+														</p>
+													</CardContent>
+												</Card>
+											</div>
+										)}
+
+										{error && (
+											<div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
+												{error}
+											</div>
+										)}
+
+										{/* Navigation Buttons */}
+										<div className="flex items-center justify-between pt-6 border-t">
+											<Button
+												type="button"
+												variant="outline"
+												onClick={prevStep}
+												disabled={currentStep === 1 || isSubmitting}
+											>
+												Previous
+											</Button>
+
+											{currentStep < STEPS.length ? (
+												<Button type="button" onClick={nextStep}>
+													Next
+												</Button>
 											) : (
-												"Complete Onboarding"
+												<Button type="submit" disabled={isSubmitting}>
+													{isSubmitting ? (
+														<>
+															<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+															Creating...
+														</>
+													) : (
+														"Complete Onboarding"
+													)}
+												</Button>
 											)}
-										</Button>
-									)}
+										</div>
+									</form>
+								</Form>
+							</CardContent>
+						</Card>
+					</Card>
+				</div>
+			</div>
+			<div className="w-1/2 relative flex items-center justify-center p-8">
+				<Card className="border-border/50 shadow-2xl bg-[#161617]">
+					<CardHeader className="space-y-3">
+						<div>
+							{formValues.name ? (
+								<CardTitle className="text-2xl">{formValues.name}</CardTitle>
+							) : (
+								<div className="h-8 w-48 bg-muted/30 rounded animate-pulse" />
+							)}
+							{formValues.industry && (
+								<Badge variant="secondary" className="mt-2">
+									{formValues.industry}
+								</Badge>
+							)}
+						</div>
+						{formValues.shortDescription ? (
+							<CardDescription className="text-base">
+								{formValues.shortDescription}
+							</CardDescription>
+						) : (
+							<div className="space-y-2">
+								<div className="h-4 w-full bg-muted/30 rounded animate-pulse" />
+								<div className="h-4 w-3/4 bg-muted/30 rounded animate-pulse" />
+							</div>
+						)}
+					</CardHeader>
+					<CardContent className="space-y-4">
+						{/* Basic Info */}
+						{(formValues.location || formValues.website) && (
+							<div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+								{formValues.location && (
+									<span className="flex items-center gap-1">
+										📍 {formValues.location}
+									</span>
+								)}
+								{formValues.website && (
+									<span className="flex items-center gap-1">
+										🔗 {new URL(formValues.website).hostname}
+									</span>
+								)}
+							</div>
+						)}
+
+						{/* Stage and Team */}
+						{(formValues.stage || formValues.teamSize) && (
+							<div className="flex flex-wrap gap-2">
+								{formValues.stage && formValues.stage !== "IDEA" && (
+									<Badge variant="outline">
+										Stage: {formValues.stage.replace("_", " ")}
+									</Badge>
+								)}
+								{formValues.teamSize && formValues.teamSize > 0 && (
+									<Badge variant="outline">
+										👥 Team: {formValues.teamSize}
+									</Badge>
+								)}
+								{formValues.fundingStage && (
+									<Badge variant="outline">
+										💰 {formValues.fundingStage.replace("_", " ")}
+									</Badge>
+								)}
+							</div>
+						)}
+
+						{/* Detailed Description */}
+						{formValues.description && (
+							<div className="pt-4 border-t">
+								<h4 className="text-sm font-semibold mb-2">About</h4>
+								<p className="text-sm text-muted-foreground line-clamp-4">
+									{formValues.description}
+								</p>
+							</div>
+						)}
+
+						{/* Problem Solving */}
+						{formValues.problemSolving && (
+							<div className="pt-4 border-t">
+								<h4 className="text-sm font-semibold mb-2">
+									Problem We're Solving
+								</h4>
+								<p className="text-sm text-muted-foreground line-clamp-3">
+									{formValues.problemSolving}
+								</p>
+							</div>
+						)}
+
+						{/* Target Market */}
+						{formValues.targetMarket && (
+							<div className="pt-4 border-t">
+								<h4 className="text-sm font-semibold mb-2">Target Market</h4>
+								<p className="text-sm text-muted-foreground line-clamp-3">
+									{formValues.targetMarket}
+								</p>
+							</div>
+						)}
+
+						{/* Traction */}
+						{formValues.traction && (
+							<div className="pt-4 border-t">
+								<h4 className="text-sm font-semibold mb-2">
+									Traction & Metrics
+								</h4>
+								<p className="text-sm text-muted-foreground line-clamp-3">
+									{formValues.traction}
+								</p>
+							</div>
+						)}
+
+						{/* Co-founders */}
+						{formValues.coFounders && formValues.coFounders.length > 0 && (
+							<div className="pt-4 border-t">
+								<h4 className="text-sm font-semibold mb-2">
+									Co-founders ({formValues.coFounders.length})
+								</h4>
+								<div className="space-y-2">
+									{formValues.coFounders.map((coFounder, index) => (
+										<div
+											key={`${coFounder.email}-${index}`}
+											className="flex items-center justify-between text-sm"
+										>
+											<div>
+												<p className="font-medium">
+													{coFounder.name || coFounder.email}
+												</p>
+												{coFounder.role && (
+													<p className="text-xs text-muted-foreground">
+														{coFounder.role}
+													</p>
+												)}
+											</div>
+											{coFounder.equityPercentage > 0 && (
+												<Badge variant="secondary" className="text-xs">
+													{coFounder.equityPercentage}%
+												</Badge>
+											)}
+										</div>
+									))}
 								</div>
-							</form>
-						</Form>
+							</div>
+						)}
+
+						{/* Empty State */}
+						{!formValues.name && !formValues.shortDescription && (
+							<div className="text-center py-8">
+								<p className="text-sm text-muted-foreground">
+									Start filling out the form to see your preview
+								</p>
+							</div>
+						)}
 					</CardContent>
 				</Card>
 			</div>
