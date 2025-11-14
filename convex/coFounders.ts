@@ -21,6 +21,24 @@ export const createBatch = mutation({
     const invitations = []
 
     for (const coFounder of args.coFounders) {
+      const existing = await ctx.db
+        .query('coFounders')
+        .withIndex('by_email', (q) => q.eq('email', coFounder.email))
+        .filter((q) => q.eq(q.field('startupId'), args.startupId))
+        .first()
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          name: coFounder.name,
+          role: coFounder.role,
+          equityPercentage: coFounder.equityPercentage,
+          invitedBy: args.invitedBy,
+          invitedAt: now,
+        })
+        invitations.push(existing._id)
+        continue
+      }
+
       const invitationId = await ctx.db.insert('coFounders', {
         startupId: args.startupId,
         organizationId: args.organizationId,

@@ -212,39 +212,33 @@ function OnboardingPage() {
 
 			console.log("Creating startup in Convex...");
 			// Create startup in Convex with application data
+			const inferredStage =
+				data.peopleUsing === "yes" ? ("LAUNCHED" as const) : ("IDEA" as const);
+
+			const inferredFundingStage =
+				data.investmentTaken === "yes"
+					? ("SEED" as const)
+					: ("BOOTSTRAPPED" as const);
+
+			const teamSize = (data.coFounders?.length ?? 0) + 1;
+
 			const { startupId } = await createStartup({
-				// Startup info
 				name: data.companyName,
 				shortDescription: data.shortDescription,
 				description: data.whatMaking,
 				website: data.companyUrl || undefined,
-				futureLocation: data.futureLocation,
-				locationExplanation: data.locationExplanation,
-
-				// Progress
-				howFarAlong: data.howFarAlong,
-				workingTime: data.workingTime,
-				techStack: data.techStack,
-				peopleUsing: data.peopleUsing === "yes",
-				versionTimeline: data.versionTimeline,
-				hasRevenue: data.hasRevenue === "yes",
-
-				// Idea
-				whyThisIdea: data.whyThisIdea,
-				customerNeed: data.customerNeed,
-				competitors: data.competitors,
-				monetization: data.monetization,
-				category: data.category,
-
-				// Equity
-				hasLegalEntity: data.hasLegalEntity === "yes",
-				legalEntities: data.legalEntities,
-				equityBreakdown: data.equityBreakdown,
-				investmentTaken: data.investmentTaken === "yes",
-				currentlyFundraising: data.currentlyFundraising === "yes",
-
+				industry: data.category,
+				stage: inferredStage,
+				location: data.futureLocation,
+				foundedDate: data.versionTimeline || undefined,
+				problemSolving: data.whyThisIdea,
+				targetMarket: data.customerNeed,
+				traction: data.howFarAlong,
+				fundingStage: inferredFundingStage,
+				teamSize,
 				organizationId,
 				userId: session.data.user.id,
+				coFounders: data.coFounders,
 			});
 			console.log("Startup created successfully");
 
@@ -257,7 +251,48 @@ function OnboardingPage() {
 					coFounders: data.coFounders,
 					invitedBy: session.data.user.id,
 				});
-				console.log("Co-founder invitations sent");
+				console.log("Co-founder invitations stored in Convex");
+
+				console.log("Inviting co-founders through Better Auth...");
+				const inviteErrors: string[] = [];
+
+				await Promise.all(
+					data.coFounders.map(async (coFounder) => {
+						try {
+							const result = await authClient.organization.inviteMember({
+								organizationId,
+								email: coFounder.email,
+								role: "member",
+								resend: true,
+							});
+
+							if (result.error) {
+								console.error(
+									"Better Auth invite error:",
+									coFounder.email,
+									result.error,
+								);
+								inviteErrors.push(coFounder.email);
+							}
+						} catch (inviteError) {
+							console.error(
+								"Failed to invite co-founder via Better Auth:",
+								coFounder.email,
+								inviteError,
+							);
+							inviteErrors.push(coFounder.email);
+						}
+					}),
+				);
+
+				if (inviteErrors.length > 0) {
+					console.warn(
+						"Startup created, but invites failed for:",
+						inviteErrors.join(", "),
+					);
+				} else {
+					console.log("Co-founder invitations sent via Better Auth");
+				}
 			}
 
 			console.log("Setting active organization...");
