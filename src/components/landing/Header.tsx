@@ -16,10 +16,6 @@ const MenuItems = [
 		label: "For investors",
 		href: "#investors",
 	},
-	{
-		label: "About",
-		href: "#about",
-	},
 ];
 
 const Header = () => {
@@ -68,7 +64,7 @@ const Header = () => {
 	return (
 		<div
 			className={
-				"h-16 rounded-full fixed top-4 left-1/2 -translate-x-1/2 bg-transparent w-full max-w-7xl mx-auto flex justify-between items-center px-4 backdrop-blur-sm z-50 transition-all duration-300 ease-in-out"
+				"h-16 rounded-full fixed top-4 left-1/2 -translate-x-1/2 bg-transparent w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-50 transition-all duration-300 ease-in-out"
 			}
 		>
 			<div className="flex items-center w-1/6 pl-2">
@@ -79,7 +75,7 @@ const Header = () => {
 					className={cn(
 						"flex items-center justify-center gap-16 h-12 px-8 transition-all duration-300 ease-in-out",
 						scrolled &&
-							"bg-black/20 backdrop-blur ring ring-white/10 rounded-full",
+							"bg-black/20 backdrop-blur-lg ring ring-white/10 rounded-full",
 					)}
 				>
 					{MenuItems.map((item) => (

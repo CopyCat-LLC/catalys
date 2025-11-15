@@ -8,6 +8,7 @@ import { organization } from "better-auth/plugins/organization";
 import { emailOTP } from "better-auth/plugins";
 import { requireActionCtx } from "@convex-dev/better-auth/utils";
 import { sendOTPVerification } from "./lib/resend/email";
+import { sendOrganizationInviteEmail } from "./lib/resend/invitation";
 import authSchema from "./betterAuth/schema"; 
 
 const siteUrl = process.env.SITE_URL!;
@@ -45,6 +46,22 @@ export const createAuth = (
       convex(),
       organization({
         allowUserToCreateOrganization: true,
+        async sendInvitationEmail(data) {
+          const inviterName =
+            data.inviter.user.name || data.inviter.user.email || "A teammate"
+          const acceptUrl = `${siteUrl}/accept-invite?invitationId=${data.id}`
+
+          try {
+            await sendOrganizationInviteEmail({
+              to: data.email,
+              organizationName: data.organization.name,
+              inviterName,
+              acceptUrl,
+            })
+          } catch (error) {
+            console.error("Failed to send organization invite email:", error)
+          }
+        },
       }),
       emailOTP({
         async sendVerificationOTP({ email, otp, type }) {

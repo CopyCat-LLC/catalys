@@ -1,10 +1,12 @@
 import { ArrowRightIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import Glow from "../ui/glow";
+import { Mockup, MockupFrame } from "../ui/mockup";
+import Screenshot from "../ui/screenshot";
 
 const Hero = () => {
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center gap-16 -mt-32">
+		<div className="min-h-screen flex flex-col items-center justify-center gap-16 pt-68">
 			<h2 className="text-7xl font-bold">Get funded on your terms</h2>
 			<p className="text-lg text-muted-foreground text-center font-semibold">
 				Set your equity, choose your valuation, and let investors bid to back
@@ -22,7 +24,17 @@ const Hero = () => {
 				</Button>
 			</div>
 			<div className="relative w-full">
-				<Glow variant="above" />
+				<MockupFrame>
+					<Mockup>
+						<Screenshot
+							srcDark="/dashboard-dark.png"
+							alt="Dashboard"
+							width={670}
+							height={410}
+						/>
+					</Mockup>
+				</MockupFrame>
+				<Glow variant="center" />
 			</div>
 		</div>
 	);
