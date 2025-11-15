@@ -8,7 +8,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
 import {
@@ -81,12 +80,10 @@ function SignInPage() {
 				</div>
 
 				<Card className="border-border/50 shadow-xl">
-					<CardHeader className="space-y-2 text-center">
-						<CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
-						<CardDescription className="text-base">
-							Enter your credentials to access your account
-						</CardDescription>
-					</CardHeader>
+					<CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
+					<CardDescription className="text-base">
+						Enter your credentials to access your account
+					</CardDescription>
 					<CardContent>
 						<Form {...form}>
 							<form

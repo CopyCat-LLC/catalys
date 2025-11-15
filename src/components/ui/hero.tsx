@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-
+import RisingIllustration from "@/components/illustrations/rising-small";
 import { cn } from "@/lib/utils";
-import RisingIllustration from "../../../public/illustrations/rising-small";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Section } from "./section";
@@ -40,7 +39,7 @@ export default function Hero({
 	return (
 		<Section
 			className={cn(
-				"fade-bottom w-full overflow-hidden pb-0 sm:pb-0 md:pb-0 flex-1 min-h-screen",
+				"fade-bottom w-full overflow-hidden pb-0 sm:pb-0 md:pb-0 flex-1 h-full min-h-[calc(100vh)]",
 				className,
 			)}
 		>

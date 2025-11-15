@@ -1,4 +1,10 @@
 import type { ReactNode } from "react";
+import ChatIllustration from "@/components/illustrations/chat";
+import CodeEditorIllustration from "@/components/illustrations/code-editor";
+import GlobeIllustration from "@/components/illustrations/globe";
+import MockupMobileIllustration from "@/components/illustrations/mockup-mobile";
+import PipelineIllustration from "@/components/illustrations/pipeline";
+import RadarSmallIllustration from "@/components/illustrations/radar-small";
 import {
 	Card,
 	CardContent,
@@ -8,12 +14,6 @@ import {
 	CardVisual,
 } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
-import ChatIllustration from "../../../public/illustrations/chat";
-import CodeEditorIllustration from "../../../public/illustrations/code-editor";
-import GlobeIllustration from "../../../public/illustrations/globe";
-import MockupMobileIllustration from "../../../public/illustrations/mockup-mobile";
-import PipelineIllustration from "../../../public/illustrations/pipeline";
-import RadarSmallIllustration from "../../../public/illustrations/radar-small";
 
 interface CardProps {
 	title: string;
@@ -85,7 +85,7 @@ export default function BentoGrid({
 				"Made for static sites while avoiding heavy assets, your website will feel snappy and load instantly.",
 			visual: (
 				<div className="-mb-[96px] sm:-mb-[186px] md:-mx-32">
-					<GlobeIllustration className="[&_svg]:h-[100%] [&_svg]:w-[100%]" />
+					<GlobeIllustration className="[&_svg]:h-full [&_svg]:w-full" />
 				</div>
 			),
 			size: "col-span-12 md:col-span-6 lg:col-span-5",

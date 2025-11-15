@@ -11,7 +11,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
 import {
@@ -71,7 +70,11 @@ const onboardingSchema = z.object({
 		.max(100, "Keep it under 100 characters"),
 	industry: z.string().min(1, "Please select an industry"),
 	location: z.string().optional(),
-	website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+	website: z
+		.string()
+		.url("Please enter a valid URL")
+		.optional()
+		.or(z.literal("")),
 
 	// Step 2: Details
 	description: z
@@ -356,20 +359,18 @@ function OnboardingPage() {
 				</div>
 
 				<Card className="border-border/50 shadow-xl">
-					<CardHeader>
-						<CardTitle>{STEPS[currentStep - 1].title}</CardTitle>
-						<CardDescription>
-							{STEPS[currentStep - 1].description}
-						</CardDescription>
-					</CardHeader>
+					<CardTitle>{STEPS[currentStep - 1].title}</CardTitle>
+					<CardDescription>
+						{STEPS[currentStep - 1].description}
+					</CardDescription>
 					<CardContent>
 						<Form {...form}>
-							<form 
-								onSubmit={form.handleSubmit(onSubmit)} 
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
 								className="space-y-6"
 								onKeyDown={(e) => {
 									// Prevent Enter key from submitting form unless on last step
-									if (e.key === 'Enter' && currentStep < STEPS.length) {
+									if (e.key === "Enter" && currentStep < STEPS.length) {
 										e.preventDefault();
 									}
 								}}
@@ -566,7 +567,9 @@ function OnboardingPage() {
 															<SelectContent>
 																<SelectItem value="IDEA">Idea</SelectItem>
 																<SelectItem value="MVP">MVP</SelectItem>
-																<SelectItem value="LAUNCHED">Launched</SelectItem>
+																<SelectItem value="LAUNCHED">
+																	Launched
+																</SelectItem>
 																<SelectItem value="GROWTH">Growth</SelectItem>
 																<SelectItem value="SCALING">Scaling</SelectItem>
 															</SelectContent>
@@ -583,11 +586,7 @@ function OnboardingPage() {
 													<FormItem>
 														<FormLabel>Founded Date</FormLabel>
 														<FormControl>
-															<Input
-																type="month"
-																className="h-11"
-																{...field}
-															/>
+															<Input type="month" className="h-11" {...field} />
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -605,9 +604,7 @@ function OnboardingPage() {
 											name="traction"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>
-														Traction & Metrics (Optional)
-													</FormLabel>
+													<FormLabel>Traction & Metrics (Optional)</FormLabel>
 													<FormControl>
 														<Textarea
 															placeholder="Share key metrics: users, revenue, growth rate, partnerships, etc."
@@ -640,10 +637,16 @@ function OnboardingPage() {
 																</SelectTrigger>
 															</FormControl>
 															<SelectContent>
-																<SelectItem value="PRE_SEED">Pre-Seed</SelectItem>
+																<SelectItem value="PRE_SEED">
+																	Pre-Seed
+																</SelectItem>
 																<SelectItem value="SEED">Seed</SelectItem>
-																<SelectItem value="SERIES_A">Series A</SelectItem>
-																<SelectItem value="SERIES_B">Series B</SelectItem>
+																<SelectItem value="SERIES_A">
+																	Series A
+																</SelectItem>
+																<SelectItem value="SERIES_B">
+																	Series B
+																</SelectItem>
 																<SelectItem value="SERIES_C_PLUS">
 																	Series C+
 																</SelectItem>
@@ -671,7 +674,9 @@ function OnboardingPage() {
 																className="h-11"
 																{...field}
 																onChange={(e) =>
-																	field.onChange(Number.parseInt(e.target.value))
+																	field.onChange(
+																		Number.parseInt(e.target.value),
+																	)
 																}
 															/>
 														</FormControl>
@@ -816,7 +821,9 @@ function OnboardingPage() {
 																						{...field}
 																						onChange={(e) =>
 																							field.onChange(
-																								Number.parseFloat(e.target.value),
+																								Number.parseFloat(
+																									e.target.value,
+																								),
 																							)
 																						}
 																					/>
@@ -837,8 +844,9 @@ function OnboardingPage() {
 											<CardContent className="pt-4">
 												<p className="text-sm text-muted-foreground">
 													<strong>Note:</strong> Invitations will be sent to
-													co-founders after you complete onboarding. They'll be able
-													to join your organization and access the dashboard.
+													co-founders after you complete onboarding. They'll be
+													able to join your organization and access the
+													dashboard.
 												</p>
 											</CardContent>
 										</Card>
@@ -887,4 +895,3 @@ function OnboardingPage() {
 		</div>
 	);
 }
-

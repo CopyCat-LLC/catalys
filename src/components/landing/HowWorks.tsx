@@ -37,7 +37,7 @@ interface CarouselSmallProps {
 	className?: string;
 }
 
-export default function CarouselSmall({
+export default function HowWorks({
 	title = "How it works",
 	description = "Launch UI provides a comprehensive set of components that includes everything you might need to build an effective, modern landing page.",
 	slides = [
